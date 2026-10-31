@@ -7,7 +7,7 @@ window.RACKS = [
     id: "001", name: "CS 기초", desc: "면접 CS 질문의 뿌리. 모든 랙이 이 위에 선다.",
     servers: [
       {
-        dir: "ds", title: "자료구조", desc: "데이터를 담는 그릇과 그 그릇을 고르는 기준",
+        dir: "ds", title: "Data Structure", desc: "데이터를 담는 그릇과 그 그릇을 고르는 기준",
         topics: [
           { slug: "array-vs-list", name: "배열과 연결 리스트", hook: "붙어 사는 집, 쪽지로 이어진 집", status: "todo" },
           { slug: "stack-queue", name: "스택과 큐", hook: "나중에 온 사람 먼저 vs 줄 선 순서대로", status: "todo" },
@@ -17,7 +17,7 @@ window.RACKS = [
         ],
       },
       {
-        dir: "algo", title: "알고리즘", desc: "문제를 푸는 절차와 그 빠르기를 재는 법",
+        dir: "algo", title: "Algorithm", desc: "문제를 푸는 절차와 그 빠르기를 재는 법",
         topics: [
           { slug: "big-o", name: "시간 복잡도", hook: "입력이 10배 늘면 몇 배 느려질까", status: "todo" },
           { slug: "sorting", name: "정렬", hook: "퀵, 병합, 그리고 언제 무엇을", status: "todo" },
@@ -27,7 +27,7 @@ window.RACKS = [
         ],
       },
       {
-        dir: "os", title: "운영체제", desc: "여러 프로그램이 컴퓨터 하나를 나눠 쓰는 법",
+        dir: "os", title: "OS", desc: "여러 프로그램이 컴퓨터 하나를 나눠 쓰는 법",
         topics: [
           { slug: "process-thread", name: "프로세스와 스레드", hook: "집 한 채와 그 안의 식구들", status: "todo" },
           { slug: "scheduling", name: "CPU 스케줄링", hook: "누구에게 CPU를 줄까", status: "todo" },
@@ -37,7 +37,7 @@ window.RACKS = [
         ],
       },
       {
-        dir: "db", title: "데이터베이스", desc: "많은 데이터를 빠르고 안전하게 다루는 법",
+        dir: "db", title: "Database", desc: "많은 데이터를 빠르고 안전하게 다루는 법",
         topics: [
           { slug: "index", name: "인덱스", hook: "책 뒤의 찾아보기, B+Tree", status: "todo" },
           { slug: "transaction", name: "트랜잭션과 ACID", hook: "전부 하거나, 아예 안 하거나", status: "todo" },
@@ -47,7 +47,7 @@ window.RACKS = [
         ],
       },
       {
-        dir: "net", title: "네트워크", desc: "전선 위의 비트에서 웹 페이지까지",
+        dir: "net", title: "Network", desc: "전선 위의 비트에서 웹 페이지까지",
         topics: [
           { slug: "layers", name: "프로토콜 계층", hook: "편지 봉투 속 봉투", status: "todo" },
           { slug: "tcp-udp", name: "TCP와 UDP", hook: "등기우편과 전단지", status: "todo" },
@@ -70,7 +70,7 @@ window.RACKS = [
         ],
       },
       {
-        dir: "data", title: "데이터 접근", desc: "DB를 덜 부르고, 똑똑하게 부르는 법",
+        dir: "data", title: "Data Access", desc: "DB를 덜 부르고, 똑똑하게 부르는 법",
         topics: [
           { slug: "jpa-n-plus-1", name: "JPA N+1 문제", hook: "쿼리 한 번이 백한 번이 될 때", status: "todo" },
           { slug: "redis-cache", name: "Redis 캐시", hook: "자주 찾는 건 집 앞에", status: "todo" },
@@ -82,28 +82,28 @@ window.RACKS = [
     id: "003", name: "인프라", desc: "만든 서버를 띄우고, 늘리고, 지키는 법",
     servers: [
       {
-        dir: "linux", title: "리눅스", desc: "화면 없는 서버와 대화하는 법",
+        dir: "linux", title: "Linux", desc: "화면 없는 서버와 대화하는 법",
         topics: [
           { slug: "linux-basics", name: "리눅스 기본", hook: "서버에는 화면이 없다", status: "todo" },
           { slug: "process-port", name: "프로세스와 포트", hook: "누가 8080을 쓰고 있지?", status: "todo" },
         ],
       },
       {
-        dir: "container", title: "컨테이너", desc: "어디서든 똑같이 돌아가게 포장하기",
+        dir: "container", title: "Container", desc: "어디서든 똑같이 돌아가게 포장하기",
         topics: [
           { slug: "docker-container", name: "Docker 이미지와 컨테이너", hook: "내 컴퓨터에선 되는데요, 를 없애기", status: "todo" },
           { slug: "docker-network", name: "Docker 네트워크와 볼륨", hook: "컨테이너끼리 말 걸기, 꺼져도 남기기", status: "todo" },
         ],
       },
       {
-        dir: "k8s", title: "쿠버네티스", desc: "컨테이너 여러 개를 알아서 돌보기",
+        dir: "k8s", title: "Kubernetes", desc: "컨테이너 여러 개를 알아서 돌보기",
         topics: [
           { slug: "pod-deployment", name: "Pod와 Deployment", hook: "죽으면 알아서 다시 뜨는 서버", status: "todo" },
           { slug: "service", name: "Service", hook: "여러 Pod에 요청 나눠 주기", status: "todo" },
         ],
       },
       {
-        dir: "cloud", title: "클라우드", desc: "남의 데이터센터에 내 서버 세우기",
+        dir: "cloud", title: "Cloud", desc: "남의 데이터센터에 내 서버 세우기",
         topics: [
           { slug: "vpc", name: "VPC와 서브넷", hook: "클라우드 안에 내 동네 만들기", status: "todo" },
           { slug: "load-balancer", name: "로드밸런서", hook: "손님을 여러 창구로 안내하기", status: "todo" },
@@ -115,7 +115,7 @@ window.RACKS = [
     id: "004", name: "CI/CD", desc: "코드가 커밋에서 운영 서버까지 가는 길",
     servers: [
       {
-        dir: "git", title: "Git 협업", desc: "여럿이 한 코드를 안 깨고 고치는 법",
+        dir: "git", title: "Git", desc: "여럿이 한 코드를 안 깨고 고치는 법",
         topics: [
           { slug: "branch-strategy", name: "브랜치 전략", hook: "main을 지키는 규칙", status: "todo" },
           { slug: "pull-request", name: "PR과 코드 리뷰", hook: "합치기 전에 한 번 더 보기", status: "todo" },

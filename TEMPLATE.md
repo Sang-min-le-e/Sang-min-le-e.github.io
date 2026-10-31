@@ -5,7 +5,7 @@
 | 서버실 | 공부 | 예 |
 |---|---|---|
 | 랙 (`RACK-001` …) | 큰 주제 | RACK-001 · CS 기초 |
-| 서버 (`server-001` …) | 과목 | server-004 · 데이터베이스 |
+| 서버 (`server-001` …) | 과목 | server-004 · Database |
 | 램프 | 주제 하나 | 인덱스 |
 
 이름은 불변 인프라(Immutable Infrastructure)처럼 번호로 붙입니다. 서버 번호는 랙을 넘어 이어지는 고유 일련번호이고, `topics.js`에 적힌 순서대로 자동으로 매겨집니다.
@@ -47,18 +47,18 @@
 
 | 랙 | 서버 | 과목 | 폴더 | 예시 slug |
 |---|---|---|---|---|
-| RACK-001 · CS 기초 | server-001 | 자료구조 | `ds` | `hash-table`, `heap` |
-| | server-002 | 알고리즘 | `algo` | `big-o`, `dp` |
-| | server-003 | 운영체제 | `os` | `process-thread`, `deadlock` |
-| | server-004 | 데이터베이스 | `db` | `index`, `transaction` |
-| | server-005 | 네트워크 | `net` | `tcp-udp`, `http-https` |
+| RACK-001 · CS 기초 | server-001 | Data Structure | `ds` | `hash-table`, `heap` |
+| | server-002 | Algorithm | `algo` | `big-o`, `dp` |
+| | server-003 | OS | `os` | `process-thread`, `deadlock` |
+| | server-004 | Database | `db` | `index`, `transaction` |
+| | server-005 | Network | `net` | `tcp-udp`, `http-https` |
 | RACK-002 · 백엔드 | server-006 | Spring | `spring` | `spring-di`, `jwt-auth` |
-| | server-007 | 데이터 접근 | `data` | `jpa-n-plus-1`, `redis-cache` |
-| RACK-003 · 인프라 | server-008 | 리눅스 | `linux` | `linux-basics` |
-| | server-009 | 컨테이너 | `container` | `docker-container` |
-| | server-010 | 쿠버네티스 | `k8s` | `pod-deployment`, `service` |
-| | server-011 | 클라우드 | `cloud` | `vpc`, `load-balancer` |
-| RACK-004 · CI/CD | server-012 | Git 협업 | `git` | `branch-strategy` |
+| | server-007 | Data Access | `data` | `jpa-n-plus-1`, `redis-cache` |
+| RACK-003 · 인프라 | server-008 | Linux | `linux` | `linux-basics` |
+| | server-009 | Container | `container` | `docker-container` |
+| | server-010 | Kubernetes | `k8s` | `pod-deployment`, `service` |
+| | server-011 | Cloud | `cloud` | `vpc`, `load-balancer` |
+| RACK-004 · CI/CD | server-012 | Git | `git` | `branch-strategy` |
 | | server-013 | CI | `ci` | `github-actions` |
 | | server-014 | CD | `cd` | `zero-downtime` |
 
