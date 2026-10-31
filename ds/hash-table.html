@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>해시 테이블 · CS 노트</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .buckets { display: grid; gap: 8px; }
+    .bucket { display: flex; align-items: center; gap: 8px; min-height: 40px; }
+    .bucket .idx {
+      flex: none; width: 40px; height: 40px; display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--text-3);
+      border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg);
+      transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+    }
+    .bucket.hit .idx { background: var(--primary); border-color: var(--primary-dark); color: #fff; box-shadow: var(--shadow-ring); }
+    .chain { display: flex; align-items: center; flex-wrap: wrap; row-gap: 8px; }
+    .node {
+      font-family: var(--font-mono); font-size: 13px; padding: 8px 12px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
+      transition: background-color .2s ease, border-color .2s ease;
+      animation: pop .25s ease;
+    }
+    .node.checking { border-color: var(--primary); background: var(--focus-tint); }
+    .node.found { border-color: var(--accent); background: var(--accent); color: var(--on-accent); font-weight: 700; }
+    .arrow { width: 24px; text-align: center; color: var(--muted); font-size: 13px; }
+    .empty { font-size: 13px; color: var(--text-3); }
+    @keyframes pop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+    .stats { display: flex; gap: 8px; flex-wrap: wrap; }
+    .stats span { font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: var(--radius-sm); background: var(--code-bg); color: var(--text); }
+    .stats .warn { background: var(--primary); color: #fff; }
+    .calc { font-family: var(--font-mono); font-size: 13px; color: var(--text-2); margin: 4px 0 16px; min-height: 20px; }
+    .calc b { color: var(--link); }
+  </style>
+</head>
+<body data-root="../" data-topic="ds/hash-table">
+
+<main class="wrap article">
+  <div class="crumb" data-crumb></div>
+  <h1>해시 테이블</h1>
+  <p class="lead">이름표만 보면 몇 번 사물함인지 바로 계산되는 사물함. 그래서 찾는 데 거의 시간이 안 든다.</p>
+
+  <div class="note"><strong>샘플 페이지.</strong> 01, 02의 설명은 짧은 초안이니 내 말로 다시 쓰고, 04의 답변은 직접 채우세요.</div>
+
+  <h2><span class="step">01</span>한 줄 정의</h2>
+  <p>키를 <b>해시 함수</b>에 넣어 나온 숫자를 배열의 칸 번호로 쓰는 자료구조. 칸 번호를 바로 계산하니 평균적으로 <code>O(1)</code>에 넣고, 찾고, 지운다.</p>
+
+  <h2><span class="step">02</span>왜 필요한가</h2>
+  <p>배열에서 값을 찾으려면 처음부터 하나씩 봐야 한다(<code>O(n)</code>). 정렬해 두면 이진 탐색으로 <code>O(log n)</code>까지 줄지만, 넣을 때마다 정렬을 유지해야 한다. 해시 테이블은 "어디에 있는지"를 계산으로 알아내서 이 비용을 없앤다.</p>
+  <p>대신 서로 다른 키가 같은 칸에 떨어지는 <b>충돌</b>이 생긴다. 아래 실험에서 직접 일으켜 보자.</p>
+
+  <h2><span class="step">03</span>만져 보기</h2>
+  <div class="lab">
+    <div class="lab-head">
+      <span class="eyebrow">Lab · 체이닝 방식 해시 테이블</span>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="lab-controls">
+      <input type="text" id="key" placeholder="키 입력 (예: apple)" maxlength="12" autocomplete="off">
+      <button class="btn small primary" id="insert">넣기</button>
+      <button class="btn small" id="search">찾기</button>
+      <button class="btn small" id="remove">지우기</button>
+    </div>
+    <div class="lab-controls">
+      <label class="field">칸 수
+        <select id="size"><option>5</option><option selected>7</option><option>11</option></select>
+      </label>
+      <button class="btn small" id="collide">충돌 일으키기</button>
+      <button class="btn small" id="resize">두 배로 늘리기</button>
+      <button class="btn small" id="reset">비우기</button>
+    </div>
+    <p class="calc" id="calc">hash(키) = 글자 코드의 합 % 칸 수</p>
+    <div class="buckets" id="buckets"></div>
+    <div class="lab-log" id="log">키를 넣어 보세요. 같은 칸에 여러 개가 들어가면 줄줄이 이어집니다.</div>
+  </div>
+  <p class="lab-caption">왼쪽 숫자가 칸 번호, 오른쪽이 그 칸에 연결 리스트로 이어진 키들.</p>
+
+  <h3>실험해 볼 것</h3>
+  <ul>
+    <li><b>충돌 일으키기</b>를 눌러 한 칸에 키가 몰리면, 찾을 때 확인하는 횟수가 어떻게 되는지 보기.</li>
+    <li>키를 계속 넣어 <b>적재율</b>이 0.75를 넘으면 <b>두 배로 늘리기</b>를 눌러 키들이 다시 흩어지는 것 보기.</li>
+  </ul>
+
+  <h2><span class="step">04</span>면접 질문</h2>
+  <details class="qa">
+    <summary>해시 테이블의 탐색이 O(1)인 이유와, 최악의 경우는?</summary>
+    <div class="answer">내 답변을 먼저 말해 보고 여기에 적기.</div>
+  </details>
+  <details class="qa">
+    <summary>해시 충돌은 어떻게 해결하나요? (체이닝 vs 개방 주소법)</summary>
+    <div class="answer">내 답변을 먼저 말해 보고 여기에 적기.</div>
+  </details>
+  <details class="qa">
+    <summary>Java HashMap은 내부적으로 어떻게 동작하나요?</summary>
+    <div class="answer">힌트: 적재율 0.75, 꽉 차면 두 배로 늘려 재배치, 한 칸에 8개 넘게 몰리면 트리로 바꿈. 이걸 내 말로 정리하기.</div>
+  </details>
+
+  <h2><span class="step">05</span>헷갈렸던 것</h2>
+  <div class="note">공부하다 틀리게 이해했던 것과 왜 틀렸는지 적기.</div>
+
+  <nav class="pager" data-pager></nav>
+</main>
+
+<script src="../assets/topics.js"></script>
+<script src="../assets/layout.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  let size = 7;
+  let table = Array.from({ length: size }, () => []);
+  let busy = false;
+
+  const sumCodes = k => [...k].reduce((s, c) => s + c.charCodeAt(0), 0);
+  const hash = k => sumCodes(k) % size;
+  const count = () => table.reduce((s, b) => s + b.length, 0);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const log = msg => { $("log").textContent = msg; };
+
+  function showCalc(k) {
+    const s = sumCodes(k);
+    $("calc").innerHTML = `hash("${k}") = ${s} % ${size} = <b>${s % size}</b>`;
+  }
+
+  function render(hit = -1) {
+    $("buckets").innerHTML = table.map((b, i) => `
+      <div class="bucket${i === hit ? " hit" : ""}" data-i="${i}">
+        <div class="idx">${i}</div>
+        <div class="chain">${b.length
+          ? b.map((k, j) => (j ? '<span class="arrow">→</span>' : "") + `<span class="node" data-k="${k}">${k}</span>`).join("")
+          : '<span class="empty">비어 있음</span>'}</div>
+      </div>`).join("");
+    const lf = count() / size;
+    const longest = Math.max(...table.map(b => b.length));
+    $("stats").innerHTML = `
+      <span>키 ${count()}개</span>
+      <span class="${lf > 0.75 ? "warn" : ""}">적재율 ${lf.toFixed(2)}</span>
+      <span>가장 긴 줄 ${longest}</span>`;
+  }
+
+  function readKey() {
+    const k = $("key").value.trim();
+    if (!k) { log("키를 먼저 입력하세요."); $("key").focus(); }
+    return k;
+  }
+
+  // 체인을 앞에서부터 하나씩 확인하는 과정을 보여준다
+  async function walk(k) {
+    const i = hash(k);
+    showCalc(k);
+    render(i);
+    const nodes = [...document.querySelectorAll(`.bucket[data-i="${i}"] .node`)];
+    for (let j = 0; j < nodes.length; j++) {
+      nodes[j].classList.add("checking");
+      await sleep(350);
+      if (table[i][j] === k) { nodes[j].classList.replace("checking", "found"); return { i, j, steps: j + 1 }; }
+      nodes[j].classList.remove("checking");
+    }
+    return { i, j: -1, steps: nodes.length };
+  }
+
+  async function run(fn) {
+    if (busy) return;
+    busy = true;
+    try { await fn(); } finally { busy = false; }
+  }
+
+  $("insert").onclick = () => run(async () => {
+    const k = readKey(); if (!k) return;
+    const r = await walk(k);
+    if (r.j >= 0) { log(`"${k}"는 이미 ${r.i}번 칸에 있어요.`); return; }
+    table[r.i].push(k);
+    render(r.i);
+    log(table[r.i].length > 1
+      ? `"${k}" → ${r.i}번 칸. 이미 ${table[r.i].length - 1}개가 있어서 줄 끝에 이었어요. (충돌)`
+      : `"${k}" → ${r.i}번 칸에 넣었어요.`);
+    $("key").value = ""; $("key").focus();
+  });
+
+  $("search").onclick = () => run(async () => {
+    const k = readKey(); if (!k) return;
+    const r = await walk(k);
+    log(r.j >= 0
+      ? `찾았다! ${r.i}번 칸에서 ${r.steps}번 비교했어요.`
+      : `없어요. ${r.i}번 칸만 보면 되니 ${r.steps}번 비교하고 끝냈어요.`);
+  });
+
+  $("remove").onclick = () => run(async () => {
+    const k = readKey(); if (!k) return;
+    const r = await walk(k);
+    if (r.j < 0) { log(`"${k}"는 테이블에 없어요.`); return; }
+    await sleep(250);
+    table[r.i].splice(r.j, 1);
+    render(r.i);
+    log(`"${k}"를 ${r.i}번 칸에서 지웠어요.`);
+  });
+
+  // 글자 순서만 바꾼 단어는 글자 코드 합이 같아서 항상 같은 칸에 떨어진다
+  $("collide").onclick = () => run(async () => {
+    const words = ["listen", "silent", "enlist", "tinsel", "inlets"];
+    for (const w of words) {
+      const i = hash(w);
+      if (!table[i].includes(w)) table[i].push(w);
+      showCalc(w);
+      render(i);
+      await sleep(300);
+    }
+    log("글자 순서만 다른 단어는 글자 코드의 합이 같아서 전부 같은 칸으로 갔어요.\n해시 함수가 나쁘면 O(1)이 O(n)이 됩니다.");
+  });
+
+  $("resize").onclick = () => run(async () => {
+    const keys = table.flat();
+    size = size * 2 + 1;
+    table = Array.from({ length: size }, () => []);
+    keys.forEach(k => table[hash(k)].push(k));
+    $("size").innerHTML = [5, 7, 11, size].filter((v, i, a) => a.indexOf(v) === i).map(v => `<option${v === size ? " selected" : ""}>${v}</option>`).join("");
+    $("calc").textContent = `칸 수를 ${size}로 늘리고 모든 키의 칸 번호를 다시 계산했어요.`;
+    render();
+    log(`재해싱 완료. 키 ${keys.length}개를 ${size}칸에 다시 흩었어요. (실제로는 이 작업이 O(n)이라 가끔 느려집니다)`);
+  });
+
+  $("size").onchange = e => {
+    if (busy) return;
+    const keys = table.flat();
+    size = +e.target.value;
+    table = Array.from({ length: size }, () => []);
+    keys.forEach(k => table[hash(k)].push(k));
+    $("calc").textContent = "hash(키) = 글자 코드의 합 % 칸 수";
+    render();
+    log(`칸 수를 ${size}로 바꾸고 다시 배치했어요.`);
+  };
+
+  $("reset").onclick = () => {
+    if (busy) return;
+    table = Array.from({ length: size }, () => []);
+    $("calc").textContent = "hash(키) = 글자 코드의 합 % 칸 수";
+    render();
+    log("비웠어요.");
+  };
+
+  $("key").addEventListener("keydown", e => { if (e.key === "Enter") $("insert").click(); });
+
+  ["apple", "banana", "cherry"].forEach(k => table[hash(k)].push(k));
+  render();
+</script>
+</body>
+</html>

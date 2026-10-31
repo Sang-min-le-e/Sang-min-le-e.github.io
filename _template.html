@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 사용법: 이 파일을 <폴더>/<slug>.html 로 복사하고, data-topic 과 제목을 바꾼 뒤 assets/topics.js 에서 status 를 "draft" 로 바꾼다 -->
+  <title>주제 이름 · CS 노트</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-root="../" data-topic="폴더/slug">
+
+<main class="wrap article">
+  <div class="crumb" data-crumb></div>
+  <h1>주제 이름</h1>
+  <p class="lead">이 개념을 한 문장으로. 비유가 있으면 더 좋다.</p>
+
+  <h2><span class="step">01</span>한 줄 정의</h2>
+  <p>교과서 말이 아니라 내 말로.</p>
+
+  <h2><span class="step">02</span>왜 필요한가</h2>
+  <p>이게 없으면 어떤 문제가 생기는지부터.</p>
+
+  <h2><span class="step">03</span>만져 보기</h2>
+  <div class="lab">
+    <div class="lab-head"><span class="eyebrow">Lab</span></div>
+    <div class="lab-controls">
+      <input type="text" id="input" placeholder="값 입력">
+      <button class="btn small primary" id="run">실행</button>
+    </div>
+    <div id="view"></div>
+    <div class="lab-log" id="log">여기에 동작 과정이 찍힌다.</div>
+  </div>
+  <p class="lab-caption">그림 설명 한 줄.</p>
+
+  <h2><span class="step">04</span>면접 질문</h2>
+  <details class="qa">
+    <summary>질문을 적는다</summary>
+    <div class="answer">노트를 덮고 먼저 말해 본 뒤, 내 답변을 적는다.</div>
+  </details>
+
+  <h2><span class="step">05</span>헷갈렸던 것</h2>
+  <div class="note">처음에 틀리게 이해했던 것과, 왜 틀렸는지.</div>
+
+  <nav class="pager" data-pager></nav>
+</main>
+
+<script src="../assets/topics.js"></script>
+<script src="../assets/layout.js"></script>
+<script>
+  // 이 페이지만의 실험 코드
+</script>
+</body>
+</html>

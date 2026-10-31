@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CS 노트</title>
+  <meta name="description" content="자료구조, 알고리즘, 운영체제, 데이터베이스, 네트워크와 내 기술 스택을 직접 만져 보며 정리하는 노트">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-root="./">
+
+<main class="wrap-wide">
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Backend · CS Notes</div>
+      <h1>면접에서 <em>설명할 수 있을 때까지</em>, 직접 만져 보며 쌓는 컴퓨터공학.</h1>
+      <p>자료구조부터 네트워크, 그리고 프로젝트에서 쓰는 기술까지. 개념마다 손으로 조작해 보는 실험 하나와 면접 질문 몇 개를 붙여 정리합니다.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#toc">목록 바로 보기
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </a>
+        <a class="btn" href="ds/hash-table.html">샘플: 해시 테이블</a>
+      </div>
+    </div>
+    <svg class="stack-art" id="stack-art" viewBox="0 0 420 420" role="img" aria-label="여섯 층으로 쌓인 공부 단계 그림"></svg>
+  </section>
+
+  <section class="features">
+    <div class="feature">
+      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3h6M10 3v6L4 19a2 2 0 0 0 1.7 3h12.6A2 2 0 0 0 20 19l-6-10V3"/></svg></div>
+      <h3>만져 보는 실험</h3>
+      <p>값을 넣고 버튼을 누르면 자료구조와 프로토콜이 어떻게 움직이는지 눈으로 확인합니다.</p>
+    </div>
+    <div class="feature">
+      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <h3>내 말로 쓴 면접 답변</h3>
+      <p>주제마다 자주 나오는 질문을 두고, 노트를 덮은 채 직접 답해 본 내용을 남깁니다.</p>
+    </div>
+    <div class="feature">
+      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg></div>
+      <h3>보이는 진행도</h3>
+      <p>예정, 초안, 이해함, 면접 가능. 어디까지 왔는지 한눈에 보입니다.</p>
+    </div>
+  </section>
+
+  <section class="progress-card" id="progress"></section>
+
+  <section id="toc">
+    <div class="toc-head">
+      <div class="eyebrow">Contents</div>
+      <h2 class="toc-title">목록</h2>
+      <p class="toc-sub">아래층부터 위층으로. 기초 위에 내 기술 스택을 올립니다.</p>
+    </div>
+    <div id="chapters"></div>
+  </section>
+</main>
+
+<script src="assets/topics.js"></script>
+<script src="assets/layout.js"></script>
+<script>
+  const { chapters, flat, badge, STATUS_LABEL } = window.CS;
+
+  // ---------- 쌓인 판 그림 ----------
+  (function drawStack() {
+    const svg = document.getElementById("stack-art");
+    const NS = "http://www.w3.org/2000/svg";
+    const cx = 210, w = 150, h = 75, t = 10, gap = 46, topY = 92;
+    const el = (tag, attrs, parent) => {
+      const n = document.createElementNS(NS, tag);
+      for (const k in attrs) n.setAttribute(k, attrs[k]);
+      (parent || svg).appendChild(n);
+      return n;
+    };
+    const pts = a => a.map(p => p.join(",")).join(" ");
+    const n = chapters.length;
+    // 아래층부터 그려야 위층이 덮는다
+    for (let i = 0; i < n; i++) {
+      const cy = topY + (n - 1 - i) * gap;
+      const c = chapters[i];
+      const g = el("g", { class: "plate" + (i === n - 1 ? " accent" : "") });
+      g.addEventListener("click", () => document.getElementById("ch-" + c.dir).scrollIntoView({ behavior: "smooth" }));
+      const L = [cx - w, cy], R = [cx + w, cy], T = [cx, cy - h], B = [cx, cy + h];
+      el("polygon", { class: "plate-side", points: pts([L, B, [B[0], B[1] + t], [L[0], L[1] + t]]) }, g);
+      el("polygon", { class: "plate-side", points: pts([B, R, [R[0], R[1] + t], [B[0], B[1] + t]]) }, g);
+      el("polygon", { class: "plate-top", points: pts([L, T, R, B]) }, g);
+      const label = el("text", { class: "plate-label", transform: `translate(${cx - w + 34},${cy + 13}) rotate(26.565)` }, g);
+      label.textContent = `L${i + 1}  ${c.title}`;
+      if (i === n - 1) {
+        const code = el("text", { x: cx, y: cy + 6, "text-anchor": "middle", class: "plate-label", style: "font-size:22px" }, g);
+        code.textContent = "</>";
+      }
+      // 다음 층까지 이어지는 기둥
+      if (i < n - 1) {
+        [[cx - w + 14, cy], [cx + w - 14, cy], [cx, cy + h - 8]].forEach(([x, y]) =>
+          el("line", { class: "pole", x1: x, y1: y + t - gap, x2: x, y2: y })
+        );
+      }
+    }
+  })();
+
+  // ---------- 진행도 ----------
+  (function drawProgress() {
+    const count = { todo: 0, draft: 0, understood: 0, interview: 0 };
+    flat.forEach(t => count[t.status]++);
+    const total = flat.length;
+    const color = { interview: "var(--accent)", understood: "var(--primary)", draft: "var(--border-strong)" };
+    const done = count.interview;
+    document.getElementById("progress").innerHTML = `
+      <div class="progress-head">
+        <strong>면접 가능 ${done} / ${total}</strong>
+        <span>시작한 주제 ${total - count.todo}개</span>
+      </div>
+      <div class="progress-bar">
+        ${["interview", "understood", "draft"].map(s => `<span style="width:${count[s] / total * 100}%;background:${color[s]}"></span>`).join("")}
+      </div>
+      <div class="legend">
+        ${["interview", "understood", "draft", "todo"].map(s =>
+          `<span><i style="background:${color[s] || "var(--code-bg)"}"></i>${STATUS_LABEL[s]} ${count[s]}</span>`).join("")}
+      </div>`;
+  })();
+
+  // ---------- 챕터 목록 ----------
+  document.getElementById("chapters").innerHTML = chapters.map((c, i) => `
+    <article class="chapter" id="ch-${c.dir}">
+      <div class="chapter-no">${String(i + 1).padStart(2, "0")}</div>
+      <div>
+        <h2>${c.title}</h2>
+        <p class="desc">${c.desc}</p>
+        <ul class="topic-list">
+          ${c.topics.map(t => {
+            const inner = `<span class="name">${t.name}</span><span class="hook">${t.hook}</span>${badge(t.status)}`;
+            return t.status === "todo"
+              ? `<li><span class="disabled">${inner}</span></li>`
+              : `<li><a href="${c.dir}/${t.slug}.html">${inner}</a></li>`;
+          }).join("")}
+        </ul>
+      </div>
+    </article>`).join("");
+</script>
+</body>
+</html>
