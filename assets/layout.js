@@ -31,7 +31,9 @@
     rack.servers.flatMap(server =>
       server.topics.map(t => ({ ...t, rack, server, path: `${server.dir}/${t.slug}` }))));
   const badge = s => `<span class="badge ${s}">${STATUS_LABEL[s]}</span>`;
-  window.CS = { racks, flat, badge, rackName, STATUS_LABEL, SITE_NAME, root };
+  // 주제마다 HTML 파일(직접 만든 실험 페이지) 또는 마크다운 파일(format: "md") 중 하나로 쓴다
+  const topicHref = t => t.format === "md" ? `${root}note.html#${t.path}` : `${root}${t.path}.html`;
+  window.CS = { racks, flat, badge, rackName, topicHref, STATUS_LABEL, SITE_NAME, root };
 
   // ---------- 주제 페이지: 경로, 상태, 이전/다음 ----------
   const here = body.dataset.topic;
@@ -50,8 +52,8 @@
       const prev = flat.slice(0, idx).reverse().find(t => t.status !== "todo");
       const next = flat.slice(idx + 1).find(t => t.status !== "todo");
       pager.innerHTML =
-        (prev ? `<a class="prev" href="${root}${prev.path}.html"><small>← 이전</small>${prev.name}</a>` : "") +
-        (next ? `<a class="next" href="${root}${next.path}.html"><small>다음 →</small>${next.name}</a>` : "");
+        (prev ? `<a class="prev" href="${topicHref(prev)}"><small>← 이전</small>${prev.name}</a>` : "") +
+        (next ? `<a class="next" href="${topicHref(next)}"><small>다음 →</small>${next.name}</a>` : "");
     }
   }
 

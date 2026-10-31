@@ -2,6 +2,7 @@
 // 새 주제를 쓰면 여기서 status만 바꾸면 홈의 램프, 모니터, 이전/다음 링크가 자동으로 바뀐다.
 // status: "todo"(예정, 링크 없음) | "draft"(초안) | "understood"(이해함) | "interview"(면접 가능)
 // 파일 위치: <server.dir>/<topic.slug>.html   (dir은 랙이 달라도 겹치면 안 된다)
+// 마크다운으로 썼으면 format: "md" 를 붙인다 → <server.dir>/<topic.slug>.md 를 note.html이 읽어서 보여 준다
 window.RACKS = [
   {
     id: "001", name: "Computer Science", desc: "면접 CS 질문의 뿌리. 모든 랙이 이 위에 선다.",

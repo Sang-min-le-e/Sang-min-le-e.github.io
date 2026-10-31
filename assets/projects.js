@@ -1,35 +1,34 @@
 // Production 랙에 꽂히는 프로젝트 목록. 서버 이름은 prod-001부터 순서대로 자동으로 붙는다.
 // status: "live"(운영 중) | "dev"(개발 중) | "archived"(보관)
-// sample: true 이면 화면에 "예시" 표시가 붙는다. 실제 프로젝트로 바꾸면 지운다.
+// sample: true 이면 화면에 "예시" 표시가 붙는다.
 // 링크가 아직 없으면 빈 문자열로 두면 "준비 중"으로 표시된다.
+// features, troubles가 비어 있으면 그 칸은 화면에 나오지 않는다.
+// 트러블슈팅처럼 긴 글은 troubles 대신 doc에 마크다운 파일로 써도 된다.
 window.PROJECTS = [
   {
     id: "001",
-    sample: true,
-    name: "FitLog",
-    summary: "운동 기록과 AI 루틴 추천 서비스",
+    name: "예술적인 소프트웨어 - TOMO",
+    summary: "지적장애인 자녀를 둔 보호자를 위한 루틴 관리 앱",
     status: "dev",
-    period: "2026.12 – 2027.02 (예정)",
-    role: "백엔드 1인 개발",
-    team: "개인 프로젝트",
-    stack: ["Java 17", "Spring Boot", "JPA", "MySQL", "Redis", "Docker", "NCP", "GitHub Actions"],
-    links: { github: "", demo: "" },
-    // 요청이 흘러가는 순서대로
-    architecture: ["Client", "Nginx", "Spring Boot API", "MySQL", "Redis (캐시)", "LLM API"],
+    period: "2026.09 – 진행 중",
+    role: "앱 프론트엔드 (Flutter)",
+    team: "6인 팀 · 경희대 예술적인 소프트웨어 수업",
+    // 상세 화면 맨 위에 나오는 소개 문단
+    intro: "6인 팀에서 Flutter 앱 프론트엔드를 맡아, 팀의 Spring Boot 백엔드와 REST API로 연동했습니다. 로그인, 내 정보, 자녀, 루틴, 루틴 템플릿 API를 화면에 연결했고, 저장하면 관련된 화면(달력, 오늘 할 일, 홈)이 서버 데이터를 다시 불러오도록 Riverpod 상태 흐름을 설계했습니다.",
+    // 마크다운 본문(선택). 파일을 만들고 경로를 적으면 상세 화면 아래에 이어서 나온다. 예: "projects/001.md"
+    doc: "",
+    stack: ["Flutter", "Dart", "Riverpod", "go_router", "Dio", "Hive", "BLE"],
+    links: { github: "https://github.com/Sang-min-le-e/pretty_sw", demo: "" },
+    // 저장 요청이 흘러가는 순서대로
+    architecture: ["Flutter 화면", "Riverpod Actions", "Repository", "Dio · REST API", "Spring Boot 백엔드"],
     features: [
-      "운동 기록 CRUD와 주간 통계",
-      "JWT 로그인",
-      "최근 기록을 바탕으로 한 AI 루틴 추천",
-      "GitHub Actions로 NCP 서버에 자동 배포",
+      "로그인과 첫 로그인 3단계 설정(보호자, 자녀 정보)",
+      "자녀 등록과 자녀별 루틴 관리",
+      "루틴 달력, 추가, 수정, 삭제, 템플릿",
+      "기기 연결을 위한 BLE 스캔 (연동 진행 중)",
+      "프로필 사진, 회원 탈퇴",
+      "Figma 디자인을 기준으로 화면 구현",
     ],
-    troubles: [
-      {
-        title: "기록 목록 조회가 느려짐",
-        problem: "운동 기록 30개를 불러오는 API가 1초 넘게 걸렸다.",
-        cause: "기록마다 운동 종목을 따로 불러오는 JPA N+1 쿼리가 31번 실행되고 있었다.",
-        solution: "fetch join으로 한 번에 불러오도록 바꾸고, 쿼리 로그로 실행 횟수를 확인했다.",
-        result: "쿼리 31번 → 1번, 응답 시간 [측정값] ms",
-      },
-    ],
+    troubles: [],
   },
 ];

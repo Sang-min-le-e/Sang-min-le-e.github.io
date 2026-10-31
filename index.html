@@ -15,11 +15,13 @@
 <!-- 화면은 주소의 # 뒤로 바뀐다:  #/ 서버실,  #/rack/001 랙 화면,  #/rack/001/ds 랙 화면 + 서버 강조,  #/project/001 프로젝트 화면 -->
 <main class="wrap-wide" id="app"></main>
 
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <script src="assets/topics.js"></script>
 <script src="assets/projects.js"></script>
 <script src="assets/layout.js"></script>
+<script src="assets/markdown.js"></script>
 <script>
-  const { racks, flat, rackName, STATUS_LABEL } = window.CS;
+  const { racks, flat, rackName, topicHref, STATUS_LABEL } = window.CS;
   const app = document.getElementById("app");
   const SLOTS = Math.max(...racks.map(r => r.servers.length)); // 랙 높이를 맞추려고 가장 큰 랙 기준
   const lit = list => list.filter(t => t.status !== "todo").length;
@@ -111,7 +113,7 @@
             const inner = `<i class="led-dot ${t.status}" aria-hidden="true"></i><span class="name">${t.name}</span><span class="sr-only">(${STATUS_LABEL[t.status]})</span>`;
             return t.status === "todo"
               ? `<li><span class="disabled" title="${tip}">${inner}</span></li>`
-              : `<li><a href="${s.dir}/${t.slug}.html" title="${tip}">${inner}</a></li>`;
+              : `<li><a href="${topicHref({ ...t, path: `${s.dir}/${t.slug}` })}" title="${tip}">${inner}</a></li>`;
           }).join("")}
         </ul>
       </article>`;
@@ -157,8 +159,8 @@
       </section>
       <div class="zone-head">
         <span class="zone-tag">Lab</span>
-        <h2>공부 랙</h2>
-        <p>CS 기초부터 CI/CD까지, 직접 만져 보며 정리한 것들</p>
+        <h2>Study Rack</h2>
+        <p>직접 만져 보며 정리한 것들</p>
       </div>
       <section class="room" aria-label="공부 랙들"></section>
       ${monitor()}
@@ -214,6 +216,7 @@
   // ---------- 화면 3: 프로젝트 하나 ----------
   function projectView(p) {
     document.title = `${prodHost(p)} ${p.name} · 서버실`;
+    const sections = projectSections(p);
     const link = (url, label) => url
       ? `<a class="btn" href="${esc(url)}" target="_blank" rel="noopener">${label}</a>`
       : `<span class="btn" aria-disabled="true">${label} 준비 중</span>`;
@@ -234,6 +237,7 @@
           </div>
           <div class="prod-links">${link(p.links.github, "GitHub")}${link(p.links.demo, "서비스")}</div>
         </header>
+        ${p.intro ? `<p class="lead project-intro">${esc(p.intro)}</p>` : ""}
         ${p.sample ? `<div class="note"><strong>예시 프로젝트예요.</strong> 구조를 보여 주려고 넣은 가상의 내용이라, 실제 프로젝트를 시작하면 <code>assets/projects.js</code>를 진짜 내용으로 바꾸고 <code>sample</code>을 지우세요.</div>` : ""}
         <dl class="project-meta">
           <div><dt>기간</dt><dd>${esc(p.period)}</dd></div>
@@ -241,17 +245,21 @@
           <div><dt>형태</dt><dd>${esc(p.team)}</dd></div>
         </dl>
 
-        <h2><span class="step">01</span>기술 스택</h2>
-        <div class="stack-chips">${p.stack.map(s => `<span>${esc(s)}</span>`).join("")}</div>
+        ${sections.map(([, title, body], i) =>
+          `<h2><span class="step">${String(i + 1).padStart(2, "0")}</span>${title}</h2>${body()}`).join("")}
+        ${p.doc ? `<div class="md" id="project-doc"></div>` : ""}
+      </article>`;
+    // 마크다운 본문은 위 칸에 이어서 번호를 붙인다
+    if (p.doc) renderMarkdown(document.getElementById("project-doc"), p.doc, { startStep: sections.length + 1, dropTitle: true });
+  }
 
-        <h2><span class="step">02</span>아키텍처</h2>
-        <ol class="arch-flow">${p.architecture.map(a => `<li>${esc(a)}</li>`).join("")}</ol>
-
-        <h2><span class="step">03</span>주요 기능</h2>
-        <ul>${p.features.map(f => `<li>${esc(f)}</li>`).join("")}</ul>
-
-        <h2><span class="step">04</span>트러블슈팅</h2>
-        ${p.troubles.map(t => `
+  // 내용이 있는 칸만 [목록, 제목, 본문 만드는 함수]로 돌려준다
+  function projectSections(p) {
+    return [
+      [p.stack, "기술 스택", () => `<div class="stack-chips">${p.stack.map(s => `<span>${esc(s)}</span>`).join("")}</div>`],
+      [p.architecture, "아키텍처", () => `<ol class="arch-flow">${p.architecture.map(a => `<li>${esc(a)}</li>`).join("")}</ol>`],
+      [p.features, "주요 기능", () => `<ul>${p.features.map(f => `<li>${esc(f)}</li>`).join("")}</ul>`],
+      [p.troubles, "트러블슈팅", () => p.troubles.map(t => `
           <section class="trouble">
             <h3>${esc(t.title)}</h3>
             <dl>
@@ -260,8 +268,8 @@
               <dt>해결</dt><dd>${esc(t.solution)}</dd>
               <dt>결과</dt><dd>${esc(t.result)}</dd>
             </dl>
-          </section>`).join("")}
-      </article>`;
+          </section>`).join("")],
+    ].filter(([list]) => list && list.length);
   }
 
   // ---------- 화면 2: 랙 하나 ----------
