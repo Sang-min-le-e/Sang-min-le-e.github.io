@@ -1,13 +1,15 @@
-# 면접까지 가는 컴퓨터 사이언스 서버실
+# My Private Cloud · CSE 데이터센터
 
 **https://sang-min-le-e.github.io/**
 
 CS 기초부터 백엔드, 인프라, CI/CD까지 직접 만져 보며 정리하는 공부 사이트이자 포트폴리오입니다.
-서버실을 컨셉으로, 공부한 주제는 랙의 램프로 켜지고 만든 프로젝트는 Production 랙에 꽂힙니다.
+데이터센터를 컨셉으로, 공부한 주제는 랙의 램프로 켜지고 만든 프로젝트는 Production 랙에 꽂힙니다.
 
-## 서버실 구성
+운영자: 이상민 · 경희대학교 소프트웨어융합학과 23학번 · [Profile](https://sang-min-le-e.github.io/#/profile)
 
-| 서버실 | 의미 | 예 |
+## 데이터센터 구성
+
+| 데이터센터 | 의미 | 예 |
 |---|---|---|
 | **Study Rack** (`RACK-001` ~ `RACK-004`) | 큰 주제 | Computer Science, Backend, Infrastructure, CI/CD |
 | 서버 (`server-001` …) | 과목 | Data Structure, OS, Database, Kubernetes … |
@@ -36,7 +38,7 @@ CS 기초부터 백엔드, 인프라, CI/CD까지 직접 만져 보며 정리하
 ## 폴더 구조
 
 ```
-index.html              홈 (서버실, 랙 화면)
+index.html              홈 (데이터센터, 랙 화면)
 ds/, os/, db/ …         주제 페이지. 과목 폴더마다 주제 하나 = HTML 파일 하나
 projects/               프로젝트 페이지. NNN-이름.html 하나 = 프로젝트 하나
 assets/

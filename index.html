@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>면접까지 가는 컴퓨터 사이언스 서버실</title>
+  <title>My Private Cloud · CSE 데이터센터</title>
   <meta name="description" content="CS 기초부터 백엔드, 인프라, CI/CD까지 직접 켜 보며 정리하는 공부 노트">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
@@ -12,7 +12,7 @@
 </head>
 <body data-root="./">
 
-<!-- 화면은 주소의 # 뒤로 바뀐다:  #/ 서버실,  #/rack/001 랙 화면,  #/rack/001/ds 랙 화면 + 서버 강조
+<!-- 화면은 주소의 # 뒤로 바뀐다:  #/ 데이터센터,  #/rack/001 랙 화면,  #/rack/001/ds 랙 화면 + 서버 강조
      프로젝트는 각자 HTML 파일(projects/NNN-이름.html)이고, 홈이 projects 폴더를 훑어 랙에 꽂는다 -->
 <main class="wrap-wide" id="app"></main>
 
@@ -179,14 +179,106 @@
       </section>`;
   }
 
-  // ---------- 화면 1: 서버실 ----------
+  // ---------- 운영자 정보 (GitHub 프로필 README 기준) ----------
+  const PROFILE = {
+    name: "이상민",
+    nameEn: "Sangmin Lee",
+    school: "경희대학교",
+    major: "소프트웨어융합학과",
+    classOf: "23학번",
+    schoolEn: "Kyung Hee University · Software Convergence '23",
+    avatar: "https://github.com/Sang-min-le-e.png",
+    github: "https://github.com/Sang-min-le-e",
+    experience: [
+      { title: "LG Aimers 9기 수료", org: "LG AI Research", period: "2026.06.22 – 2026.09.02", kind: "교육 · 수료" },
+      { title: "고등·중등 과학 강사", org: "차오름 수학과학학원", period: "2023.01 – 2024.05, 2026.01 – 현재", kind: "강의" },
+    ],
+    stack: [
+      { group: "Languages & Frameworks", items: ["C++", "Python", "Dart", "Flutter"] },
+      { group: "Infrastructure & Cloud", items: ["Linux", "Docker"] },
+    ],
+    contact: [
+      { label: "네이버 메일", value: "sangmin351212@naver.com", href: "mailto:sangmin351212@naver.com" },
+      { label: "학교 메일", value: "sangmin351212@khu.ac.kr", href: "mailto:sangmin351212@khu.ac.kr" },
+      { label: "GitHub", value: "github.com/Sang-min-le-e", href: "https://github.com/Sang-min-le-e" },
+    ],
+  };
+
+  // 데이터센터 출입증. 홈에서 누르면 프로필로, 프로필 화면 머리에서는 크게 보인다
+  function operatorBadge(big) {
+    const tag = big ? "div" : "a";
+    return `
+      <${tag} class="op-badge${big ? " big" : ""}" ${big ? "" : 'href="#/profile"'} style="view-transition-name: operator-badge">
+        <div class="op-strap" aria-hidden="true"><span class="op-hole"></span></div>
+        <div class="op-head"><span class="op-led" aria-hidden="true"></span>Operator · Access Granted</div>
+        <div class="op-body">
+          <img class="op-avatar" src="${PROFILE.avatar}" alt="" width="64" height="64">
+          <div class="op-id">
+            <div class="op-name">${PROFILE.name}<span>${PROFILE.nameEn}</span></div>
+            <div class="op-school"><strong>${PROFILE.school} ${PROFILE.major}</strong> ${PROFILE.classOf}</div>
+            <div class="op-en">${PROFILE.schoolEn}</div>
+          </div>
+        </div>
+        <div class="op-foot"><span>Clearance · All Racks</span>${big ? "" : "<span>Profile →</span>"}</div>
+      </${tag}>`;
+  }
+
+  // ---------- 화면 4: 프로필 ----------
+  function profileView() {
+    document.title = `Profile · ${PROFILE.name} · My Private Cloud`;
+    app.innerHTML = `
+      <nav class="rack-nav" aria-label="이동">
+        <a class="back-link" href="#/">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          데이터센터
+        </a>
+      </nav>
+      <article class="article project profile">
+        <div class="eyebrow">Profile · Operator</div>
+        ${operatorBadge(true)}
+
+        <h2><span class="step">01</span>Education</h2>
+        <div class="edu">
+          <div class="edu-school">${PROFILE.school}</div>
+          <div class="edu-major">${PROFILE.major} <span>${PROFILE.classOf}</span></div>
+          <div class="edu-en">${PROFILE.schoolEn}</div>
+        </div>
+
+        <h2><span class="step">02</span>Experience & Certification</h2>
+        <ol class="timeline">
+          ${PROFILE.experience.map(e => `
+            <li>
+              <span class="tl-kind">${e.kind}</span>
+              <strong>${e.title}</strong>
+              <span class="tl-org">${e.org}</span>
+              <span class="tl-period">${e.period}</span>
+            </li>`).join("")}
+        </ol>
+
+        <h2><span class="step">03</span>Tech Stack</h2>
+        ${PROFILE.stack.map(g => `
+          <h3>${g.group}</h3>
+          <div class="stack-chips">${g.items.map(s => `<span>${s}</span>`).join("")}</div>`).join("")}
+
+        <h2><span class="step">04</span>Contact</h2>
+        <ul class="contact-list">
+          ${PROFILE.contact.map(c => `
+            <li><span>${c.label}</span><a href="${c.href}"${c.href.startsWith("http") ? ' target="_blank" rel="noopener"' : ""}>${c.value}</a></li>`).join("")}
+        </ul>
+      </article>`;
+  }
+
+  // ---------- 화면 1: 데이터센터 ----------
   function roomView() {
     document.title = window.CS.SITE_NAME;
     app.innerHTML = `
       <section class="hero">
-        <div class="eyebrow">Server Room · ${racks.length} Racks · ${flat.length} Lamps</div>
-        <h1>면접까지 가는 <em>컴퓨터 사이언스</em> 서버실.</h1>
-        <p>랙 하나가 큰 주제, 랙에 꽂힌 서버 한 대가 과목, 서버의 램프 하나가 주제입니다. 랙을 눌러 들어가 보세요.</p>
+        <div class="hero-text">
+          <div class="eyebrow">CSE Datacenter · ${racks.length} Racks · ${flat.length} Lamps</div>
+          <h1>My Private <em>Cloud</em><span class="h1-sub">CSE 데이터센터</span></h1>
+          <p>랙 하나가 큰 주제, 랙에 꽂힌 서버 한 대가 과목, 서버의 램프 하나가 주제입니다. 랙을 눌러 들어가 보세요.</p>
+        </div>
+        ${operatorBadge()}
       </section>
       <div class="zone-head">
         <span class="zone-tag">Lab</span>
@@ -263,12 +355,12 @@
     const i = racks.indexOf(rack);
     const prev = racks[i - 1], next = racks[i + 1];
     const all = topicsOf(rack);
-    document.title = `${rackName(rack)} ${rack.name} · 서버실`;
+    document.title = `${rackName(rack)} ${rack.name} · My Private Cloud`;
     app.innerHTML = `
       <nav class="rack-nav" aria-label="랙 이동">
         <a class="back-link" href="#/">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          서버실
+          데이터센터
         </a>
         <div class="rack-switch">
           ${prev ? `<a class="btn" href="${rackHref(prev)}">← ${rackName(prev)}</a>` : ""}
@@ -300,6 +392,7 @@
   // ---------- 주소 → 화면 ----------
   function route() {
     const h = location.hash;
+    if (h.startsWith("#/profile")) { profileView(); scrollTo(0, 0); return; }
     // 예전 주소(#/project/001)는 프로젝트 파일로 보낸다
     const pm = h.match(/^#\/project\/(\d+)/);
     if (pm) {
@@ -332,7 +425,7 @@
   }
 
   addEventListener("hashchange", transition);
-  addEventListener("keydown", e => { if (e.key === "Escape" && location.hash.startsWith("#/rack")) location.hash = "#/"; });
+  addEventListener("keydown", e => { if (e.key === "Escape" && /^#\/(rack|profile)/.test(location.hash)) location.hash = "#/"; });
   route();
 </script>
 </body>
