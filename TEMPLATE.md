@@ -4,7 +4,7 @@
 
 | 서버실 | 공부 | 예 |
 |---|---|---|
-| 랙 (`RACK-001` …) | 큰 주제 | RACK-001 · CS 기초 |
+| 랙 (`RACK-001` …) | 큰 주제 | RACK-001 · Computer Science |
 | 서버 (`server-001` …) | 과목 | server-004 · Database |
 | 램프 | 주제 하나 | 인덱스 |
 
@@ -47,14 +47,14 @@
 
 | 랙 | 서버 | 과목 | 폴더 | 예시 slug |
 |---|---|---|---|---|
-| RACK-001 · CS 기초 | server-001 | Data Structure | `ds` | `hash-table`, `heap` |
+| RACK-001 · Computer Science | server-001 | Data Structure | `ds` | `hash-table`, `heap` |
 | | server-002 | Algorithm | `algo` | `big-o`, `dp` |
 | | server-003 | OS | `os` | `process-thread`, `deadlock` |
 | | server-004 | Database | `db` | `index`, `transaction` |
 | | server-005 | Network | `net` | `tcp-udp`, `http-https` |
-| RACK-002 · 백엔드 | server-006 | Spring | `spring` | `spring-di`, `jwt-auth` |
+| RACK-002 · Backend | server-006 | Spring | `spring` | `spring-di`, `jwt-auth` |
 | | server-007 | Data Access | `data` | `jpa-n-plus-1`, `redis-cache` |
-| RACK-003 · 인프라 | server-008 | Linux | `linux` | `linux-basics` |
+| RACK-003 · Infrastructure | server-008 | Linux | `linux` | `linux-basics` |
 | | server-009 | Container | `container` | `docker-container` |
 | | server-010 | Kubernetes | `k8s` | `pod-deployment`, `service` |
 | | server-011 | Cloud | `cloud` | `vpc`, `load-balancer` |

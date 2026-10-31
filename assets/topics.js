@@ -4,7 +4,7 @@
 // 파일 위치: <server.dir>/<topic.slug>.html   (dir은 랙이 달라도 겹치면 안 된다)
 window.RACKS = [
   {
-    id: "001", name: "CS 기초", desc: "면접 CS 질문의 뿌리. 모든 랙이 이 위에 선다.",
+    id: "001", name: "Computer Science", desc: "면접 CS 질문의 뿌리. 모든 랙이 이 위에 선다.",
     servers: [
       {
         dir: "ds", title: "Data Structure", desc: "데이터를 담는 그릇과 그 그릇을 고르는 기준",
@@ -59,7 +59,7 @@ window.RACKS = [
     ],
   },
   {
-    id: "002", name: "백엔드", desc: "요청을 받아 데이터를 꺼내고 응답하기까지",
+    id: "002", name: "Backend", desc: "요청을 받아 데이터를 꺼내고 응답하기까지",
     servers: [
       {
         dir: "spring", title: "Spring", desc: "요청이 들어와서 응답이 나가기까지",
@@ -79,7 +79,7 @@ window.RACKS = [
     ],
   },
   {
-    id: "003", name: "인프라", desc: "만든 서버를 띄우고, 늘리고, 지키는 법",
+    id: "003", name: "Infrastructure", desc: "만든 서버를 띄우고, 늘리고, 지키는 법",
     servers: [
       {
         dir: "linux", title: "Linux", desc: "화면 없는 서버와 대화하는 법",
