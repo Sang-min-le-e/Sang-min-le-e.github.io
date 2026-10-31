@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CS 노트</title>
-  <meta name="description" content="자료구조, 알고리즘, 운영체제, 데이터베이스, 네트워크와 내 기술 스택을 직접 만져 보며 정리하는 노트">
+  <title>면접까지 가는 컴퓨터 사이언스 서버실</title>
+  <meta name="description" content="CS 기초부터 백엔드, 인프라, CI/CD까지 직접 켜 보며 정리하는 공부 노트">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -14,131 +14,195 @@
 
 <main class="wrap-wide">
   <section class="hero">
-    <div>
-      <div class="eyebrow">Backend · CS Notes</div>
-      <h1>면접에서 <em>설명할 수 있을 때까지</em>, 직접 만져 보며 쌓는 컴퓨터공학.</h1>
-      <p>자료구조부터 네트워크, 그리고 프로젝트에서 쓰는 기술까지. 개념마다 손으로 조작해 보는 실험 하나와 면접 질문 몇 개를 붙여 정리합니다.</p>
-      <div class="hero-actions">
-        <a class="btn primary" href="#toc">목록 바로 보기
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-        </a>
-        <a class="btn" href="ds/hash-table.html">샘플: 해시 테이블</a>
-      </div>
+    <div class="eyebrow" id="hero-eyebrow">Server Room</div>
+    <h1>면접까지 가는 <em>컴퓨터 사이언스</em> 서버실.</h1>
+    <p>랙 하나가 큰 주제, 랙에 꽂힌 서버 한 대가 과목, 서버의 램프 하나가 주제입니다. 실험으로 만져 보고 면접 질문에 막힘없이 답할 수 있으면 초록불이 켜집니다.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="#inventory">장비 목록 보기
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </a>
+      <a class="btn" href="ds/hash-table.html">샘플: 해시 테이블</a>
     </div>
-    <svg class="stack-art" id="stack-art" viewBox="0 0 420 420" role="img" aria-label="여섯 층으로 쌓인 공부 단계 그림"></svg>
   </section>
+
+  <section class="room" id="room" aria-label="서버실의 랙들"></section>
+
+  <section class="monitor" id="monitor"></section>
 
   <section class="features">
     <div class="feature">
-      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3h6M10 3v6L4 19a2 2 0 0 0 1.7 3h12.6A2 2 0 0 0 20 19l-6-10V3"/></svg></div>
+      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6L4 19a2 2 0 0 0 1.7 3h12.6A2 2 0 0 0 20 19l-6-10V3"/></svg></div>
       <h3>만져 보는 실험</h3>
-      <p>값을 넣고 버튼을 누르면 자료구조와 프로토콜이 어떻게 움직이는지 눈으로 확인합니다.</p>
+      <p>값을 넣고 버튼을 누르면 자료구조, 프로토콜, 컨테이너, 파이프라인이 어떻게 움직이는지 눈으로 확인합니다.</p>
     </div>
     <div class="feature">
-      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
       <h3>내 말로 쓴 면접 답변</h3>
       <p>주제마다 자주 나오는 질문을 두고, 노트를 덮은 채 직접 답해 본 내용을 남깁니다.</p>
     </div>
     <div class="feature">
-      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg></div>
-      <h3>보이는 진행도</h3>
-      <p>예정, 초안, 이해함, 면접 가능. 어디까지 왔는지 한눈에 보입니다.</p>
+      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/></svg></div>
+      <h3>램프로 보는 진행도</h3>
+      <p>꺼짐, 초안, 이해함, 면접 가능. 랙만 봐도 어디까지 왔는지 보입니다.</p>
     </div>
   </section>
 
-  <section class="progress-card" id="progress"></section>
-
-  <section id="toc">
+  <section id="inventory">
     <div class="toc-head">
-      <div class="eyebrow">Contents</div>
-      <h2 class="toc-title">목록</h2>
-      <p class="toc-sub">아래층부터 위층으로. 기초 위에 내 기술 스택을 올립니다.</p>
+      <div class="eyebrow">Inventory</div>
+      <h2 class="toc-title">장비 목록</h2>
+      <p class="toc-sub">랙별로, 아래 칸부터 위 칸으로 쌓아 올립니다.</p>
     </div>
-    <div id="chapters"></div>
+    <div id="racks"></div>
   </section>
 </main>
 
 <script src="assets/topics.js"></script>
 <script src="assets/layout.js"></script>
 <script>
-  const { chapters, flat, badge, STATUS_LABEL } = window.CS;
+  const { racks, flat, badge, unitNo, STATUS_LABEL } = window.CS;
+  const SLOTS = Math.max(...racks.map(r => r.servers.length)); // 랙 높이를 맞추려고 가장 큰 랙 기준
+  const lit = list => list.filter(t => t.status !== "todo").length;
+  const topicsOf = rack => rack.servers.flatMap(s => s.topics);
 
-  // ---------- 쌓인 판 그림 ----------
-  (function drawStack() {
-    const svg = document.getElementById("stack-art");
+  document.getElementById("hero-eyebrow").textContent = `Server Room · ${racks.length} Racks · ${flat.length} Lamps`;
+
+  // ---------- 랙 그림 ----------
+  function drawRack(rack) {
     const NS = "http://www.w3.org/2000/svg";
-    const cx = 210, w = 150, h = 75, t = 10, gap = 46, topY = 92;
+    const unitH = 46, gap = 6, top = 50;
+    const bottom = top + SLOTS * unitH + (SLOTS - 1) * gap;
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", `0 0 220 ${bottom + 40}`);
+    svg.setAttribute("class", "rack-art");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", `Rack ${rack.id} ${rack.name}: 서버 ${rack.servers.length}대`);
     const el = (tag, attrs, parent) => {
       const n = document.createElementNS(NS, tag);
       for (const k in attrs) n.setAttribute(k, attrs[k]);
       (parent || svg).appendChild(n);
       return n;
     };
-    const pts = a => a.map(p => p.join(",")).join(" ");
-    const n = chapters.length;
-    // 아래층부터 그려야 위층이 덮는다
-    for (let i = 0; i < n; i++) {
-      const cy = topY + (n - 1 - i) * gap;
-      const c = chapters[i];
-      const g = el("g", { class: "plate" + (i === n - 1 ? " accent" : "") });
-      g.addEventListener("click", () => document.getElementById("ch-" + c.dir).scrollIntoView({ behavior: "smooth" }));
-      const L = [cx - w, cy], R = [cx + w, cy], T = [cx, cy - h], B = [cx, cy + h];
-      el("polygon", { class: "plate-side", points: pts([L, B, [B[0], B[1] + t], [L[0], L[1] + t]]) }, g);
-      el("polygon", { class: "plate-side", points: pts([B, R, [R[0], R[1] + t], [B[0], B[1] + t]]) }, g);
-      el("polygon", { class: "plate-top", points: pts([L, T, R, B]) }, g);
-      const label = el("text", { class: "plate-label", transform: `translate(${cx - w + 34},${cy + 13}) rotate(26.565)` }, g);
-      label.textContent = `L${i + 1}  ${c.title}`;
-      if (i === n - 1) {
-        const code = el("text", { x: cx, y: cy + 6, "text-anchor": "middle", class: "plate-label", style: "font-size:22px" }, g);
-        code.textContent = "</>";
-      }
-      // 다음 층까지 이어지는 기둥
-      if (i < n - 1) {
-        [[cx - w + 14, cy], [cx + w - 14, cy], [cx, cy + h - 8]].forEach(([x, y]) =>
-          el("line", { class: "pole", x1: x, y1: y + t - gap, x2: x, y2: y })
-        );
-      }
-    }
-  })();
 
-  // ---------- 진행도 ----------
-  (function drawProgress() {
+    el("rect", { class: "rack-frame", x: 10, y: 10, width: 200, height: bottom + 4, rx: 6 });
+    el("rect", { class: "rack-plate", x: 72, y: 20, width: 76, height: 18, rx: 2 });
+    el("text", { class: "rack-plate-text", x: 110, y: 32.5, "text-anchor": "middle" }).textContent = `RACK ${rack.id}`;
+    [22, 190].forEach(x => {
+      el("rect", { class: "rack-rail", x, y: top - 4, width: 8, height: bottom - top + 8 });
+      for (let y = top; y < bottom; y += 12) el("rect", { class: "rack-hole", x: x + 2.5, y, width: 3, height: 3 });
+    });
+    [26, 182].forEach(x => el("rect", { class: "rack-foot", x, y: bottom + 14, width: 12, height: 8 }));
+
+    // 아래 칸부터 채우고, 남는 칸은 빈 패널
+    for (let i = 0; i < SLOTS; i++) {
+      const y = bottom - unitH - i * (unitH + gap);
+      const server = rack.servers[i];
+      if (!server) {
+        el("rect", { class: "blank", x: 34, y, width: 152, height: unitH, rx: 3 });
+        [y + 15, y + 23, y + 31].forEach(ly => el("line", { class: "blank-line", x1: 46, y1: ly, x2: 174, y2: ly }));
+        continue;
+      }
+      const g = el("g", { class: "unit", tabindex: 0, role: "link", "aria-label": `${unitNo(i)} ${server.title}으로 이동` });
+      const go = () => document.getElementById("srv-" + server.dir).scrollIntoView({ behavior: "smooth" });
+      g.addEventListener("click", go);
+      g.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+
+      el("rect", { class: "unit-body", x: 34, y, width: 152, height: unitH, rx: 3 }, g);
+      el("circle", { class: "power" + (lit(server.topics) ? " on" : ""), cx: 44, cy: y + 11, r: 2.6 }, g);
+      el("text", { class: "unit-no", x: 51, y: y + 14 }, g).textContent = unitNo(i);
+      el("text", { class: "unit-title", x: 41, y: y + 33 }, g).textContent = server.title;
+
+      const right = 176, step = 9;
+      const ledLeft = right - (server.topics.length - 1) * step;
+      server.topics.forEach((t, j) => {
+        const led = el("circle", { class: "led " + t.status, cx: ledLeft + j * step, cy: y + 13, r: 3 }, g);
+        el("title", {}, led).textContent = `${t.name} · ${STATUS_LABEL[t.status]}`;
+      });
+      for (let x = ledLeft - 4; x + 3 <= right + 4; x += 5) el("rect", { class: "vent", x, y: y + 24, width: 2.5, height: 14, rx: 1 }, g);
+      el("rect", { class: "activity", x: 40, y: y + unitH - 7, width: 8, height: 2.5, rx: 1, style: `animation-delay:${((i * 0.43) + rack.id.charCodeAt(0) * 0.17) % 2.2}s` }, g);
+    }
+    return svg;
+  }
+
+  const room = document.getElementById("room");
+  racks.forEach(rack => {
+    const all = topicsOf(rack);
+    const card = document.createElement("div");
+    card.className = "rack-card";
+    card.appendChild(drawRack(rack));
+    card.insertAdjacentHTML("beforeend", `
+      <a class="rack-label" href="#rack-${rack.id}">
+        <span class="rack-id">Rack ${rack.id}</span>
+        <span class="rack-name">${rack.name}</span>
+        <span class="rack-meta">서버 ${rack.servers.length}대 · 램프 ${lit(all)}/${all.length}</span>
+      </a>`);
+    room.appendChild(card);
+  });
+
+  // ---------- 모니터 ----------
+  (function drawMonitor() {
     const count = { todo: 0, draft: 0, understood: 0, interview: 0 };
     flat.forEach(t => count[t.status]++);
     const total = flat.length;
-    const color = { interview: "var(--accent)", understood: "var(--primary)", draft: "var(--border-strong)" };
-    const done = count.interview;
-    document.getElementById("progress").innerHTML = `
-      <div class="progress-head">
-        <strong>면접 가능 ${done} / ${total}</strong>
-        <span>시작한 주제 ${total - count.todo}개</span>
+    const color = { interview: "var(--accent)", understood: "var(--primary)", draft: "var(--focus-tint)" };
+    const servers = racks.flatMap(r => r.servers);
+    const onlineServers = servers.filter(s => lit(s.topics)).length;
+    const onlineRacks = racks.filter(r => lit(topicsOf(r))).length;
+    document.getElementById("monitor").innerHTML = `
+      <div class="monitor-head">
+        <div>
+          <div class="eyebrow">Room Monitor</div>
+          <strong>초록불 ${count.interview} / ${total}</strong>
+        </div>
+        <div class="monitor-stats">
+          <span><b>${onlineRacks}</b> / ${racks.length} 랙 가동</span>
+          <span><b>${onlineServers}</b> / ${servers.length} 서버 가동</span>
+          <span><b>${total - count.todo}</b> 램프 켜짐</span>
+        </div>
       </div>
       <div class="progress-bar">
         ${["interview", "understood", "draft"].map(s => `<span style="width:${count[s] / total * 100}%;background:${color[s]}"></span>`).join("")}
       </div>
       <div class="legend">
         ${["interview", "understood", "draft", "todo"].map(s =>
-          `<span><i style="background:${color[s] || "var(--code-bg)"}"></i>${STATUS_LABEL[s]} ${count[s]}</span>`).join("")}
+          `<span><i class="led-dot ${s}"></i>${STATUS_LABEL[s]} ${count[s]}</span>`).join("")}
       </div>`;
   })();
 
-  // ---------- 챕터 목록 ----------
-  document.getElementById("chapters").innerHTML = chapters.map((c, i) => `
-    <article class="chapter" id="ch-${c.dir}">
-      <div class="chapter-no">${String(i + 1).padStart(2, "0")}</div>
-      <div>
-        <h2>${c.title}</h2>
-        <p class="desc">${c.desc}</p>
-        <ul class="topic-list">
-          ${c.topics.map(t => {
-            const inner = `<span class="name">${t.name}</span><span class="hook">${t.hook}</span>${badge(t.status)}`;
-            return t.status === "todo"
-              ? `<li><span class="disabled">${inner}</span></li>`
-              : `<li><a href="${c.dir}/${t.slug}.html">${inner}</a></li>`;
-          }).join("")}
-        </ul>
+  // ---------- 장비 목록 ----------
+  document.getElementById("racks").innerHTML = racks.map(rack => {
+    const all = topicsOf(rack);
+    return `
+    <section class="rack-section" id="rack-${rack.id}">
+      <div class="rack-section-head">
+        <div class="rack-chip">Rack ${rack.id}</div>
+        <div>
+          <h2>${rack.name}</h2>
+          <p>${rack.desc}</p>
+        </div>
+        <span class="rack-section-meta">램프 ${lit(all)} / ${all.length}</span>
       </div>
-    </article>`).join("");
+      <div class="server-grid">
+      ${rack.servers.map((s, i) => `
+        <article class="server-card" id="srv-${s.dir}">
+          <div class="server-card-head">
+            <span class="unit-tag">${unitNo(i)}</span>
+            <h3>${s.title}</h3>
+            <span class="server-lamps">${lit(s.topics)}/${s.topics.length}</span>
+          </div>
+          <ul class="mini-topics">
+            ${s.topics.map(t => {
+              const tip = `${t.hook} · ${STATUS_LABEL[t.status]}`;
+              const inner = `<i class="led-dot ${t.status}" aria-hidden="true"></i><span class="name">${t.name}</span><span class="sr-only">(${STATUS_LABEL[t.status]})</span>`;
+              return t.status === "todo"
+                ? `<li><span class="disabled" title="${tip}">${inner}</span></li>`
+                : `<li><a href="${s.dir}/${t.slug}.html" title="${tip}">${inner}</a></li>`;
+            }).join("")}
+          </ul>
+        </article>`).join("")}
+      </div>
+    </section>`;
+  }).join("");
 </script>
 </body>
 </html>
