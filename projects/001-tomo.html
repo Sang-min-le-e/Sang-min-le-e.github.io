@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>예술적인 소프트웨어 - TOMO · 서버실</title>
+
+  <!-- 홈의 Production 랙과 이 페이지 머리판이 읽는 정보 -->
+  <meta name="project:name" content="예술적인 소프트웨어 - TOMO">
+  <meta name="project:summary" content="지적장애인 자녀를 둔 보호자를 위한 루틴 관리 앱">
+  <meta name="project:status" content="dev">
+  <meta name="project:stack" content="Flutter, Dart, Riverpod, go_router, Dio, Hive, BLE">
+  <meta name="project:github" content="https://github.com/Sang-min-le-e/pretty_sw">
+  <meta name="project:demo" content="">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-root="../">
+
+<main class="wrap-wide">
+  <article class="article project">
+    <div class="crumb" data-crumb></div>
+    <header data-project-face></header>
+
+    <p class="lead project-intro">6인 팀에서 Flutter 앱 프론트엔드를 맡아, 팀의 Spring Boot 백엔드와 REST API로 연동했습니다. 로그인, 내 정보, 자녀, 루틴, 루틴 템플릿 API를 화면에 연결했고, 저장하면 관련된 화면(달력, 오늘 할 일, 홈)이 서버 데이터를 다시 불러오도록 Riverpod 상태 흐름을 설계했습니다.</p>
+
+    <dl class="project-meta">
+      <div><dt>기간</dt><dd>2026.09 – 진행 중</dd></div>
+      <div><dt>역할</dt><dd>앱 프론트엔드 (Flutter)</dd></div>
+      <div><dt>형태</dt><dd>6인 팀 · 경희대 예술적인 소프트웨어 수업</dd></div>
+    </dl>
+
+    <h2><span class="step">01</span>기술 스택</h2>
+    <div data-stack></div>
+
+    <h2><span class="step">02</span>아키텍처</h2>
+    <p>루틴을 저장할 때 요청이 흘러가는 순서입니다.</p>
+    <ol class="arch-flow">
+      <li>Flutter 화면</li>
+      <li>Riverpod Actions</li>
+      <li>Repository</li>
+      <li>Dio · REST API</li>
+      <li>Spring Boot 백엔드</li>
+    </ol>
+
+    <h2><span class="step">03</span>주요 기능</h2>
+    <ul>
+      <li>로그인과 첫 로그인 3단계 설정(보호자, 자녀 정보)</li>
+      <li>자녀 등록과 자녀별 루틴 관리</li>
+      <li>루틴 달력, 추가, 수정, 삭제, 템플릿</li>
+      <li>기기 연결을 위한 BLE 스캔 (연동 진행 중)</li>
+      <li>프로필 사진, 회원 탈퇴</li>
+      <li>Figma 디자인을 기준으로 화면 구현</li>
+    </ul>
+
+    <!-- 트러블슈팅은 직접 채우기. 형식은 projects/_template.html 참고 -->
+  </article>
+</main>
+
+<script src="../assets/layout.js"></script>
+<script src="../assets/project-page.js"></script>
+</body>
+</html>

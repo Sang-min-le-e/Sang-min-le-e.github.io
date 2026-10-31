@@ -31,8 +31,7 @@
     rack.servers.flatMap(server =>
       server.topics.map(t => ({ ...t, rack, server, path: `${server.dir}/${t.slug}` }))));
   const badge = s => `<span class="badge ${s}">${STATUS_LABEL[s]}</span>`;
-  // 주제마다 HTML 파일(직접 만든 실험 페이지) 또는 마크다운 파일(format: "md") 중 하나로 쓴다
-  const topicHref = t => t.format === "md" ? `${root}note.html#${t.path}` : `${root}${t.path}.html`;
+  const topicHref = t => `${root}${t.path}.html`;
   window.CS = { racks, flat, badge, rackName, topicHref, STATUS_LABEL, SITE_NAME, root };
 
   // ---------- 주제 페이지: 경로, 상태, 이전/다음 ----------

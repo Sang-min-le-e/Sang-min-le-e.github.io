@@ -12,14 +12,13 @@
 </head>
 <body data-root="./">
 
-<!-- 화면은 주소의 # 뒤로 바뀐다:  #/ 서버실,  #/rack/001 랙 화면,  #/rack/001/ds 랙 화면 + 서버 강조,  #/project/001 프로젝트 화면 -->
+<!-- 화면은 주소의 # 뒤로 바뀐다:  #/ 서버실,  #/rack/001 랙 화면,  #/rack/001/ds 랙 화면 + 서버 강조
+     프로젝트는 각자 HTML 파일(projects/NNN-이름.html)이고, 홈이 projects 폴더를 훑어 랙에 꽂는다 -->
 <main class="wrap-wide" id="app"></main>
 
-<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <script src="assets/topics.js"></script>
-<script src="assets/projects.js"></script>
 <script src="assets/layout.js"></script>
-<script src="assets/markdown.js"></script>
+<script src="assets/project-page.js"></script>
 <script>
   const { racks, flat, rackName, topicHref, STATUS_LABEL } = window.CS;
   const app = document.getElementById("app");
@@ -29,11 +28,43 @@
   const rackHref = (rack, dir) => `#/rack/${rack.id}` + (dir ? `/${dir}` : "");
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const projects = window.PROJECTS || [];
-  const PROD_SLOTS = Math.max(3, projects.length); // 빈 칸은 빈 패널로 채운다
-  const PROJECT_STATUS = { live: "운영 중", dev: "개발 중", archived: "보관" };
-  const prodHost = p => "prod-" + p.id;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // ---------- 프로젝트 찾기 ----------
+  // projects 폴더의 NNN-이름.html 파일 목록을 알아낸다.
+  // 로컬 미리보기 서버는 폴더 목록 페이지를 주고, GitHub Pages는 안 주니 그때는 GitHub API로 묻는다.
+  const PROJECT_FILE = /^\d{3}-[\w-]+\.html$/;
+  async function listProjectFiles() {
+    try {
+      const res = await fetch("projects/");
+      if (res.ok && (res.headers.get("content-type") || "").includes("html")) {
+        const names = [...(await res.text()).matchAll(/href="([^"]+)"/g)].map(m => decodeURIComponent(m[1]));
+        const found = names.filter(n => PROJECT_FILE.test(n));
+        if (found.length) return found;
+      }
+    } catch (e) { /* 다음 방법으로 */ }
+    try {
+      const res = await fetch("https://api.github.com/repos/Sang-min-le-e/Sang-min-le-e.github.io/contents/projects");
+      if (res.ok) return (await res.json()).map(f => f.name).filter(n => PROJECT_FILE.test(n));
+    } catch (e) { /* 목록을 못 받음 */ }
+    return null;
+  }
+  // 파일을 받아 맨 위 meta에서 이름, 소개, 상태, 스택을 읽는다
+  let projectsPromise;
+  function loadProjects() {
+    projectsPromise = projectsPromise || (async () => {
+      const files = await listProjectFiles();
+      if (!files) return null;
+      const list = await Promise.all(files.sort().map(async name => {
+        try {
+          const html = await (await fetch("projects/" + name)).text();
+          return readProjectMeta(new DOMParser().parseFromString(html, "text/html"), name);
+        } catch (e) { return null; }
+      }));
+      return list.filter(Boolean);
+    })();
+    return projectsPromise;
+  }
 
   // ---------- 랙 그림 ----------
   // onUnit(server): 서버 칸을 눌렀을 때, onRack(): 명판이나 몸체를 눌렀을 때 (없으면 누를 수 없음)
@@ -187,89 +218,44 @@
         </a>`);
       room.appendChild(card);
     });
+    fillProdRack();
   }
 
   // ---------- Production 랙 (가로) ----------
-  function prodRack() {
-    const slots = [];
-    for (let i = 0; i < PROD_SLOTS; i++) {
-      const p = projects[i];
-      slots.push(p ? `
-        <a class="prod-server" href="#/project/${p.id}" style="view-transition-name: project-${p.id}">
+  // 프로젝트 파일 목록을 받아 오는 동안은 빈 패널만 보이고, 받으면 채운다
+  function prodSlots(list) {
+    const n = Math.max(3, list.length); // 빈 칸은 빈 패널로 채운다
+    return Array.from({ length: n }, (_, i) => {
+      const p = list[i];
+      return p ? `
+        <a class="prod-server" href="projects/${p.file}" style="view-transition-name: project-${p.id}">
           <span class="prod-led ${p.status}" aria-hidden="true"></span>
           <span class="prod-id">
-            <span class="prod-host">${prodHost(p)}${p.sample ? ' <span class="sample-tag">예시</span>' : ""}</span>
+            <span class="prod-host">${p.host}${p.sample ? ' <span class="sample-tag">예시</span>' : ""}</span>
             <span class="prod-name">${esc(p.name)}</span>
           </span>
           <span class="prod-summary">${esc(p.summary)}</span>
           <span class="prod-stack">${p.stack.slice(0, 5).map(s => `<span>${esc(s)}</span>`).join("")}</span>
-          <span class="prod-status">${PROJECT_STATUS[p.status]}</span>
-        </a>` : `<div class="prod-blank" aria-hidden="true"></div>`);
-    }
+          <span class="prod-status">${p.statusLabel}</span>
+        </a>` : `<div class="prod-blank" aria-hidden="true"></div>`;
+    }).join("");
+  }
+
+  function prodRack() {
     return `
       <section class="prod-rack" aria-label="프로젝트 랙">
         <div class="prod-plate">RACK-P01 · PRODUCTION</div>
-        <div class="prod-slots">${slots.join("")}</div>
+        <div class="prod-slots" id="prod-slots">${prodSlots([])}</div>
       </section>`;
   }
 
-  // ---------- 화면 3: 프로젝트 하나 ----------
-  function projectView(p) {
-    document.title = `${prodHost(p)} ${p.name} · 서버실`;
-    const sections = projectSections(p);
-    const link = (url, label) => url
-      ? `<a class="btn" href="${esc(url)}" target="_blank" rel="noopener">${label}</a>`
-      : `<span class="btn" aria-disabled="true">${label} 준비 중</span>`;
-    app.innerHTML = `
-      <nav class="rack-nav" aria-label="이동">
-        <a class="back-link" href="#/">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          서버실
-        </a>
-      </nav>
-      <article class="article project">
-        <header class="prod-face" style="view-transition-name: project-${p.id}">
-          <span class="prod-led ${p.status}" aria-hidden="true"></span>
-          <div class="prod-face-body">
-            <div class="prod-host">${prodHost(p)} · ${PROJECT_STATUS[p.status]}${p.sample ? ' <span class="sample-tag">예시</span>' : ""}</div>
-            <h1>${esc(p.name)}</h1>
-            <p>${esc(p.summary)}</p>
-          </div>
-          <div class="prod-links">${link(p.links.github, "GitHub")}${link(p.links.demo, "서비스")}</div>
-        </header>
-        ${p.intro ? `<p class="lead project-intro">${esc(p.intro)}</p>` : ""}
-        ${p.sample ? `<div class="note"><strong>예시 프로젝트예요.</strong> 구조를 보여 주려고 넣은 가상의 내용이라, 실제 프로젝트를 시작하면 <code>assets/projects.js</code>를 진짜 내용으로 바꾸고 <code>sample</code>을 지우세요.</div>` : ""}
-        <dl class="project-meta">
-          <div><dt>기간</dt><dd>${esc(p.period)}</dd></div>
-          <div><dt>역할</dt><dd>${esc(p.role)}</dd></div>
-          <div><dt>형태</dt><dd>${esc(p.team)}</dd></div>
-        </dl>
-
-        ${sections.map(([, title, body], i) =>
-          `<h2><span class="step">${String(i + 1).padStart(2, "0")}</span>${title}</h2>${body()}`).join("")}
-        ${p.doc ? `<div class="md" id="project-doc"></div>` : ""}
-      </article>`;
-    // 마크다운 본문은 위 칸에 이어서 번호를 붙인다
-    if (p.doc) renderMarkdown(document.getElementById("project-doc"), p.doc, { startStep: sections.length + 1, dropTitle: true });
-  }
-
-  // 내용이 있는 칸만 [목록, 제목, 본문 만드는 함수]로 돌려준다
-  function projectSections(p) {
-    return [
-      [p.stack, "기술 스택", () => `<div class="stack-chips">${p.stack.map(s => `<span>${esc(s)}</span>`).join("")}</div>`],
-      [p.architecture, "아키텍처", () => `<ol class="arch-flow">${p.architecture.map(a => `<li>${esc(a)}</li>`).join("")}</ol>`],
-      [p.features, "주요 기능", () => `<ul>${p.features.map(f => `<li>${esc(f)}</li>`).join("")}</ul>`],
-      [p.troubles, "트러블슈팅", () => p.troubles.map(t => `
-          <section class="trouble">
-            <h3>${esc(t.title)}</h3>
-            <dl>
-              <dt>문제</dt><dd>${esc(t.problem)}</dd>
-              <dt>원인</dt><dd>${esc(t.cause)}</dd>
-              <dt>해결</dt><dd>${esc(t.solution)}</dd>
-              <dt>결과</dt><dd>${esc(t.result)}</dd>
-            </dl>
-          </section>`).join("")],
-    ].filter(([list]) => list && list.length);
+  async function fillProdRack() {
+    const list = await loadProjects();
+    const slots = document.getElementById("prod-slots");
+    if (!slots) return; // 그 사이 다른 화면으로 갔으면 그만
+    slots.innerHTML = list
+      ? prodSlots(list)
+      : `<p class="prod-error">프로젝트 목록을 불러오지 못했어요. 잠시 뒤 새로고침해 주세요.</p>${prodSlots([])}`;
   }
 
   // ---------- 화면 2: 랙 하나 ----------
@@ -314,9 +300,15 @@
   // ---------- 주소 → 화면 ----------
   function route() {
     const h = location.hash;
+    // 예전 주소(#/project/001)는 프로젝트 파일로 보낸다
     const pm = h.match(/^#\/project\/(\d+)/);
-    const project = pm && projects.find(p => p.id === pm[1]);
-    if (project) { projectView(project); scrollTo(0, 0); return; }
+    if (pm) {
+      loadProjects().then(list => {
+        const p = list && list.find(p => p.id === pm[1]);
+        location.replace(p ? "projects/" + p.file : "#/");
+      });
+      return;
+    }
     let m = h.match(/^#\/rack\/(\d+)(?:\/([\w-]+))?/);
     // 예전 주소(#rack-001, #srv-ds)도 받아 준다
     if (!m && (m = h.match(/^#rack-(\d+)/))) m = [, m[1]];
@@ -340,7 +332,7 @@
   }
 
   addEventListener("hashchange", transition);
-  addEventListener("keydown", e => { if (e.key === "Escape" && /^#\/(rack|project)/.test(location.hash)) location.hash = "#/"; });
+  addEventListener("keydown", e => { if (e.key === "Escape" && location.hash.startsWith("#/rack")) location.hash = "#/"; });
   route();
 </script>
 </body>

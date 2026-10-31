@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--
+    사용법
+    1. 이 파일을 복사해 projects/002-이름.html 로 저장한다 (앞 세 자리가 prod-002 번호가 된다. 이름은 영어 소문자와 -)
+    2. 아래 project:* 여섯 줄을 채운다. 홈의 Production 랙과 이 페이지 머리판이 여기서 읽어 간다
+    3. 본문은 마음대로 HTML로 쓴다. 쓰지 않는 칸은 지운다
+    4. 푸시하면 홈의 랙에 자동으로 꽂힌다 (다른 파일은 고칠 필요 없음)
+  -->
+  <title>프로젝트 이름 · 서버실</title>
+
+  <meta name="project:name" content="프로젝트 이름">
+  <meta name="project:summary" content="한 줄 소개">
+  <meta name="project:status" content="dev">            <!-- live 운영 중 / dev 개발 중 / archived 보관 -->
+  <meta name="project:stack" content="Java 17, Spring Boot, MySQL">   <!-- 쉼표로 구분. 랙에는 앞의 5개만 보인다 -->
+  <meta name="project:github" content="">               <!-- 없으면 비워 두면 "준비 중" -->
+  <meta name="project:demo" content="">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-root="../">
+
+<main class="wrap-wide">
+  <article class="article project">
+    <div class="crumb" data-crumb></div>
+    <!-- 머리판(이름, 소개, 상태, 링크)은 위 meta로 자동으로 그려진다 -->
+    <header data-project-face></header>
+
+    <p class="lead project-intro">이 프로젝트에서 내가 무엇을 맡아 무엇을 해냈는지 두세 문장으로.</p>
+
+    <dl class="project-meta">
+      <div><dt>기간</dt><dd>2027.01 – 2027.02</dd></div>
+      <div><dt>역할</dt><dd>백엔드</dd></div>
+      <div><dt>형태</dt><dd>개인 프로젝트</dd></div>
+    </dl>
+
+    <h2><span class="step">01</span>기술 스택</h2>
+    <div data-stack></div>   <!-- project:stack 으로 자동 -->
+
+    <h2><span class="step">02</span>아키텍처</h2>
+    <ol class="arch-flow">
+      <li>Client</li>
+      <li>Spring Boot API</li>
+      <li>MySQL</li>
+    </ol>
+
+    <h2><span class="step">03</span>주요 기능</h2>
+    <ul>
+      <li>기능 하나</li>
+      <li>기능 둘</li>
+    </ul>
+
+    <h2><span class="step">04</span>트러블슈팅</h2>
+    <section class="trouble">
+      <h3>문제 하나의 제목</h3>
+      <dl>
+        <dt>문제</dt><dd>무엇이 어떻게 안 됐나 (숫자로)</dd>
+        <dt>원인</dt><dd>왜 그랬나</dd>
+        <dt>해결</dt><dd>무엇을 바꿨나</dd>
+        <dt>결과</dt><dd>얼마나 좋아졌나 (숫자로)</dd>
+      </dl>
+    </section>
+
+    <!-- 인터랙티브 자료를 넣고 싶으면 아래처럼 lab 상자를 쓰고, 맨 아래 <script>에 코드를 넣는다 -->
+    <h2><span class="step">05</span>만져 보기</h2>
+    <div class="lab">
+      <div class="lab-head"><span class="eyebrow">Lab</span></div>
+      <div id="demo"></div>
+    </div>
+
+    <h2><span class="step">06</span>배운 점</h2>
+    <p>새로 알게 된 것, 다음에 다르게 할 것.</p>
+  </article>
+</main>
+
+<script src="../assets/layout.js"></script>
+<script src="../assets/project-page.js"></script>
+<script>
+  // 이 페이지만의 인터랙티브 코드
+</script>
+</body>
+</html>
