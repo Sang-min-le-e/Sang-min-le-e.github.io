@@ -60,7 +60,8 @@
 <script src="assets/topics.js"></script>
 <script src="assets/layout.js"></script>
 <script>
-  const { racks, flat, badge, unitNo, STATUS_LABEL } = window.CS;
+  const { racks, flat, rackName, STATUS_LABEL } = window.CS;
+  const goTo = id => document.getElementById(id).scrollIntoView({ behavior: "smooth" });
   const SLOTS = Math.max(...racks.map(r => r.servers.length)); // 랙 높이를 맞추려고 가장 큰 랙 기준
   const lit = list => list.filter(t => t.status !== "todo").length;
   const topicsOf = rack => rack.servers.flatMap(s => s.topics);
@@ -76,17 +77,21 @@
     svg.setAttribute("viewBox", `0 0 220 ${bottom + 40}`);
     svg.setAttribute("class", "rack-art");
     svg.setAttribute("role", "img");
-    svg.setAttribute("aria-label", `Rack ${rack.id} ${rack.name}: 서버 ${rack.servers.length}대`);
+    svg.setAttribute("aria-label", `${rackName(rack)} ${rack.name}: 서버 ${rack.servers.length}대`);
     const el = (tag, attrs, parent) => {
       const n = document.createElementNS(NS, tag);
       for (const k in attrs) n.setAttribute(k, attrs[k]);
       (parent || svg).appendChild(n);
       return n;
     };
+    // 서버가 아닌 곳(프레임, 명판, 빈 패널)을 누르면 랙 목록으로
+    svg.addEventListener("click", () => goTo("rack-" + rack.id));
 
     el("rect", { class: "rack-frame", x: 10, y: 10, width: 200, height: bottom + 4, rx: 6 });
-    el("rect", { class: "rack-plate", x: 72, y: 20, width: 76, height: 18, rx: 2 });
-    el("text", { class: "rack-plate-text", x: 110, y: 32.5, "text-anchor": "middle" }).textContent = `RACK ${rack.id}`;
+    const plate = el("g", { class: "rack-plate-link", tabindex: 0, role: "link", "aria-label": `${rackName(rack)} ${rack.name} 목록으로 이동` });
+    plate.addEventListener("keydown", e => { if (e.key === "Enter") goTo("rack-" + rack.id); });
+    el("rect", { class: "rack-plate", x: 64, y: 18, width: 92, height: 22, rx: 2 }, plate);
+    el("text", { class: "rack-plate-text", x: 110, y: 32.5, "text-anchor": "middle" }, plate).textContent = rackName(rack);
     [22, 190].forEach(x => {
       el("rect", { class: "rack-rail", x, y: top - 4, width: 8, height: bottom - top + 8 });
       for (let y = top; y < bottom; y += 12) el("rect", { class: "rack-hole", x: x + 2.5, y, width: 3, height: 3 });
@@ -102,14 +107,13 @@
         [y + 15, y + 23, y + 31].forEach(ly => el("line", { class: "blank-line", x1: 46, y1: ly, x2: 174, y2: ly }));
         continue;
       }
-      const g = el("g", { class: "unit", tabindex: 0, role: "link", "aria-label": `${unitNo(i)} ${server.title}으로 이동` });
-      const go = () => document.getElementById("srv-" + server.dir).scrollIntoView({ behavior: "smooth" });
-      g.addEventListener("click", go);
-      g.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+      const g = el("g", { class: "unit", tabindex: 0, role: "link", "aria-label": `${server.host} ${server.title}으로 이동` });
+      g.addEventListener("click", e => { e.stopPropagation(); goTo("srv-" + server.dir); });
+      g.addEventListener("keydown", e => { if (e.key === "Enter") goTo("srv-" + server.dir); });
 
       el("rect", { class: "unit-body", x: 34, y, width: 152, height: unitH, rx: 3 }, g);
       el("circle", { class: "power" + (lit(server.topics) ? " on" : ""), cx: 44, cy: y + 11, r: 2.6 }, g);
-      el("text", { class: "unit-no", x: 51, y: y + 14 }, g).textContent = unitNo(i);
+      el("text", { class: "unit-no", x: 51, y: y + 14 }, g).textContent = server.host;
       el("text", { class: "unit-title", x: 41, y: y + 33 }, g).textContent = server.title;
 
       const right = 176, step = 9;
@@ -132,7 +136,7 @@
     card.appendChild(drawRack(rack));
     card.insertAdjacentHTML("beforeend", `
       <a class="rack-label" href="#rack-${rack.id}">
-        <span class="rack-id">Rack ${rack.id}</span>
+        <span class="rack-id">${rackName(rack)}</span>
         <span class="rack-name">${rack.name}</span>
         <span class="rack-meta">서버 ${rack.servers.length}대 · 램프 ${lit(all)}/${all.length}</span>
       </a>`);
@@ -175,7 +179,7 @@
     return `
     <section class="rack-section" id="rack-${rack.id}">
       <div class="rack-section-head">
-        <div class="rack-chip">Rack ${rack.id}</div>
+        <div class="rack-chip">${rackName(rack)}</div>
         <div>
           <h2>${rack.name}</h2>
           <p>${rack.desc}</p>
@@ -183,12 +187,14 @@
         <span class="rack-section-meta">램프 ${lit(all)} / ${all.length}</span>
       </div>
       <div class="server-grid">
-      ${rack.servers.map((s, i) => `
+      ${rack.servers.map(s => `
         <article class="server-card" id="srv-${s.dir}">
           <div class="server-card-head">
-            <span class="unit-tag">${unitNo(i)}</span>
-            <h3>${s.title}</h3>
-            <span class="server-lamps">${lit(s.topics)}/${s.topics.length}</span>
+            <span class="unit-tag">${s.host}</span>
+            <div class="server-card-title">
+              <h3>${s.title}</h3>
+              <span class="server-lamps">${lit(s.topics)}/${s.topics.length}</span>
+            </div>
           </div>
           <ul class="mini-topics">
             ${s.topics.map(t => {

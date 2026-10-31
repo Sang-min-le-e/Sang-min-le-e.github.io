@@ -15,20 +15,23 @@
     <div class="wrap-wide inner">
       <a class="brand" href="${root}index.html"><span class="mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="9" width="12" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="11" cy="4.5" r="1" fill="#68b631"/><circle cx="11" cy="11.5" r="1" fill="#68b631"/></svg></span><span class="brand-name">${SITE_NAME}</span></a>
       <a class="gh-link" href="${GITHUB_URL}" target="_blank" rel="noopener" aria-label="GitHub 프로필 (새 창)">
-        <svg class="gh-mark" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-        <span class="gh-text">GitHub</span>
+        <svg class="gh-mark" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
       </a>
     </div>`;
   body.prepend(header);
 
   // ---------- 공통 유틸 ----------
-  const unitNo = i => "U" + String(i + 1).padStart(2, "0");
+  // 이름은 불변 인프라처럼 번호로 붙인다: RACK-001, server-001 (서버 번호는 랙을 넘어 이어진다)
+  const rackName = rack => `RACK-${rack.id}`;
+  let seq = 0;
+  racks.forEach(rack => rack.servers.forEach(server => { server.host = "server-" + String(++seq).padStart(3, "0"); }));
+
   // 랙 → 서버 → 주제를 한 줄로 편다. 이전/다음 링크는 이 순서를 따른다.
   const flat = racks.flatMap(rack =>
-    rack.servers.flatMap((server, si) =>
-      server.topics.map(t => ({ ...t, rack, server, unit: unitNo(si), path: `${server.dir}/${t.slug}` }))));
+    rack.servers.flatMap(server =>
+      server.topics.map(t => ({ ...t, rack, server, path: `${server.dir}/${t.slug}` }))));
   const badge = s => `<span class="badge ${s}">${STATUS_LABEL[s]}</span>`;
-  window.CS = { racks, flat, badge, unitNo, STATUS_LABEL, SITE_NAME, root };
+  window.CS = { racks, flat, badge, rackName, STATUS_LABEL, SITE_NAME, root };
 
   // ---------- 주제 페이지: 경로, 상태, 이전/다음 ----------
   const here = body.dataset.topic;
@@ -38,8 +41,8 @@
     const crumb = document.querySelector("[data-crumb]");
     if (cur && crumb) {
       crumb.innerHTML =
-        `<a href="${root}index.html#rack-${cur.rack.id}">Rack ${cur.rack.id} · ${cur.rack.name}</a> <span class="sep">/</span> ` +
-        `<a href="${root}index.html#srv-${cur.server.dir}">${cur.unit} ${cur.server.title}</a> <span class="sep">/</span> ${badge(cur.status)}`;
+        `<a href="${root}index.html#rack-${cur.rack.id}">${rackName(cur.rack)} · ${cur.rack.name}</a> <span class="sep">/</span> ` +
+        `<a href="${root}index.html#srv-${cur.server.dir}">${cur.server.host} · ${cur.server.title}</a> <span class="sep">/</span> ${badge(cur.status)}`;
     }
     const pager = document.querySelector("[data-pager]");
     if (pager && idx >= 0) {

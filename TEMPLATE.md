@@ -4,9 +4,11 @@
 
 | 서버실 | 공부 | 예 |
 |---|---|---|
-| 랙 | 큰 주제 | Rack A · CS 기초 |
-| 서버 (U01, U02 …) | 과목 | U04 데이터베이스 |
+| 랙 (`RACK-001` …) | 큰 주제 | RACK-001 · CS 기초 |
+| 서버 (`server-001` …) | 과목 | server-004 · 데이터베이스 |
 | 램프 | 주제 하나 | 인덱스 |
+
+이름은 불변 인프라(Immutable Infrastructure)처럼 번호로 붙입니다. 서버 번호는 랙을 넘어 이어지는 고유 일련번호이고, `topics.js`에 적힌 순서대로 자동으로 매겨집니다.
 
 주제 하나를 **이해 → 직접 쓰기 → 만져 보기 → 면접 답변**까지 끝내는 방식입니다.
 새 주제를 쓸 때마다 이 문서를 따라가세요.
@@ -45,24 +47,26 @@
 
 | 랙 | 서버 | 과목 | 폴더 | 예시 slug |
 |---|---|---|---|---|
-| A · CS 기초 | U01 | 자료구조 | `ds` | `hash-table`, `heap` |
-| | U02 | 알고리즘 | `algo` | `big-o`, `dp` |
-| | U03 | 운영체제 | `os` | `process-thread`, `deadlock` |
-| | U04 | 데이터베이스 | `db` | `index`, `transaction` |
-| | U05 | 네트워크 | `net` | `tcp-udp`, `http-https` |
-| B · 백엔드 | U01 | Spring | `spring` | `spring-di`, `jwt-auth` |
-| | U02 | 데이터 접근 | `data` | `jpa-n-plus-1`, `redis-cache` |
-| C · 인프라 | U01 | 리눅스 | `linux` | `linux-basics` |
-| | U02 | 컨테이너 | `container` | `docker-container` |
-| | U03 | 쿠버네티스 | `k8s` | `pod-deployment`, `service` |
-| | U04 | 클라우드 | `cloud` | `vpc`, `load-balancer` |
-| D · CI/CD | U01 | Git 협업 | `git` | `branch-strategy` |
-| | U02 | CI | `ci` | `github-actions` |
-| | U03 | CD | `cd` | `zero-downtime` |
+| RACK-001 · CS 기초 | server-001 | 자료구조 | `ds` | `hash-table`, `heap` |
+| | server-002 | 알고리즘 | `algo` | `big-o`, `dp` |
+| | server-003 | 운영체제 | `os` | `process-thread`, `deadlock` |
+| | server-004 | 데이터베이스 | `db` | `index`, `transaction` |
+| | server-005 | 네트워크 | `net` | `tcp-udp`, `http-https` |
+| RACK-002 · 백엔드 | server-006 | Spring | `spring` | `spring-di`, `jwt-auth` |
+| | server-007 | 데이터 접근 | `data` | `jpa-n-plus-1`, `redis-cache` |
+| RACK-003 · 인프라 | server-008 | 리눅스 | `linux` | `linux-basics` |
+| | server-009 | 컨테이너 | `container` | `docker-container` |
+| | server-010 | 쿠버네티스 | `k8s` | `pod-deployment`, `service` |
+| | server-011 | 클라우드 | `cloud` | `vpc`, `load-balancer` |
+| RACK-004 · CI/CD | server-012 | Git 협업 | `git` | `branch-strategy` |
+| | server-013 | CI | `ci` | `github-actions` |
+| | server-014 | CD | `cd` | `zero-downtime` |
 
 - 폴더 이름은 랙이 달라도 겹치면 안 됩니다.
 - 과목을 추가하려면 `topics.js`의 랙 `servers`에 하나 더 넣습니다. 랙에 서버가 한 칸 꽂힙니다.
-- 큰 주제를 추가하려면 `RACKS`에 랙을 하나 더 넣습니다(`id`는 다음 알파벳). 서버실에 랙이 한 대 늘어납니다.
+- 큰 주제를 추가하려면 `RACKS`에 랙을 하나 더 넣습니다(`id`는 다음 번호, 예: `"005"`). 서버실에 랙이 한 대 늘어납니다.
+- 서버를 중간에 끼워 넣으면 그 뒤 서버 번호가 하나씩 밀립니다. 번호를 고정하고 싶으면 새 서버는 맨 뒤 랙의 끝에 추가하세요.
+- 홈의 랙 그림에서 서버를 누르면 그 서버 카드로, 명판이나 랙 몸체를 누르면 그 랙 목록으로 이동합니다.
 - 모든 랙은 가장 서버가 많은 랙과 같은 높이로 그려지고, 남는 칸은 빈 패널로 채워집니다.
 
 slug는 영어 소문자와 `-`만 씁니다.
