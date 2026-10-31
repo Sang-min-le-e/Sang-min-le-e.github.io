@@ -12,84 +12,43 @@
 </head>
 <body data-root="./">
 
-<main class="wrap-wide">
-  <section class="hero">
-    <div class="eyebrow" id="hero-eyebrow">Server Room</div>
-    <h1>면접까지 가는 <em>컴퓨터 사이언스</em> 서버실.</h1>
-    <p>랙 하나가 큰 주제, 랙에 꽂힌 서버 한 대가 과목, 서버의 램프 하나가 주제입니다. 실험으로 만져 보고 면접 질문에 막힘없이 답할 수 있으면 초록불이 켜집니다.</p>
-    <div class="hero-actions">
-      <a class="btn primary" href="#inventory">장비 목록 보기
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-      </a>
-      <a class="btn" href="ds/hash-table.html">샘플: 해시 테이블</a>
-    </div>
-  </section>
-
-  <section class="room" id="room" aria-label="서버실의 랙들"></section>
-
-  <section class="monitor" id="monitor"></section>
-
-  <section class="features">
-    <div class="feature">
-      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6L4 19a2 2 0 0 0 1.7 3h12.6A2 2 0 0 0 20 19l-6-10V3"/></svg></div>
-      <h3>만져 보는 실험</h3>
-      <p>값을 넣고 버튼을 누르면 자료구조, 프로토콜, 컨테이너, 파이프라인이 어떻게 움직이는지 눈으로 확인합니다.</p>
-    </div>
-    <div class="feature">
-      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-      <h3>내 말로 쓴 면접 답변</h3>
-      <p>주제마다 자주 나오는 질문을 두고, 노트를 덮은 채 직접 답해 본 내용을 남깁니다.</p>
-    </div>
-    <div class="feature">
-      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/></svg></div>
-      <h3>램프로 보는 진행도</h3>
-      <p>꺼짐, 초안, 이해함, 면접 가능. 랙만 봐도 어디까지 왔는지 보입니다.</p>
-    </div>
-  </section>
-
-  <section id="inventory">
-    <div class="toc-head">
-      <div class="eyebrow">Inventory</div>
-      <h2 class="toc-title">장비 목록</h2>
-      <p class="toc-sub">랙별로, 아래 칸부터 위 칸으로 쌓아 올립니다.</p>
-    </div>
-    <div id="racks"></div>
-  </section>
-</main>
+<!-- 화면은 주소의 # 뒤로 바뀐다:  #/ 서버실,  #/rack/001 랙 화면,  #/rack/001/ds 랙 화면 + 서버 강조 -->
+<main class="wrap-wide" id="app"></main>
 
 <script src="assets/topics.js"></script>
 <script src="assets/layout.js"></script>
 <script>
   const { racks, flat, rackName, STATUS_LABEL } = window.CS;
-  const goTo = id => document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+  const app = document.getElementById("app");
   const SLOTS = Math.max(...racks.map(r => r.servers.length)); // 랙 높이를 맞추려고 가장 큰 랙 기준
   const lit = list => list.filter(t => t.status !== "todo").length;
   const topicsOf = rack => rack.servers.flatMap(s => s.topics);
-
-  document.getElementById("hero-eyebrow").textContent = `Server Room · ${racks.length} Racks · ${flat.length} Lamps`;
+  const rackHref = (rack, dir) => `#/rack/${rack.id}` + (dir ? `/${dir}` : "");
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // ---------- 랙 그림 ----------
-  function drawRack(rack) {
+  // onUnit(server): 서버 칸을 눌렀을 때, onRack(): 명판이나 몸체를 눌렀을 때 (없으면 누를 수 없음)
+  function drawRack(rack, { onUnit, onRack } = {}) {
     const NS = "http://www.w3.org/2000/svg";
-    const unitH = 46, gap = 6, top = 50;
+    const unitH = 56, gap = 6, top = 50;
     const bottom = top + SLOTS * unitH + (SLOTS - 1) * gap;
     const svg = document.createElementNS(NS, "svg");
     svg.setAttribute("viewBox", `0 0 220 ${bottom + 40}`);
-    svg.setAttribute("class", "rack-art");
+    svg.setAttribute("class", "rack-art" + (onRack ? " clickable" : ""));
     svg.setAttribute("role", "img");
     svg.setAttribute("aria-label", `${rackName(rack)} ${rack.name}: 서버 ${rack.servers.length}대`);
+    svg.style.viewTransitionName = "rack-" + rack.id; // 화면이 바뀌어도 같은 랙으로 이어져 날아간다
     const el = (tag, attrs, parent) => {
       const n = document.createElementNS(NS, tag);
       for (const k in attrs) n.setAttribute(k, attrs[k]);
       (parent || svg).appendChild(n);
       return n;
     };
-    // 서버가 아닌 곳(프레임, 명판, 빈 패널)을 누르면 랙 목록으로
-    svg.addEventListener("click", () => goTo("rack-" + rack.id));
+    if (onRack) svg.addEventListener("click", onRack);
 
     el("rect", { class: "rack-frame", x: 10, y: 10, width: 200, height: bottom + 4, rx: 6 });
-    const plate = el("g", { class: "rack-plate-link", tabindex: 0, role: "link", "aria-label": `${rackName(rack)} ${rack.name} 목록으로 이동` });
-    plate.addEventListener("keydown", e => { if (e.key === "Enter") goTo("rack-" + rack.id); });
+    const plate = el("g", onRack ? { class: "rack-plate-link", tabindex: 0, role: "link", "aria-label": `${rackName(rack)} ${rack.name} 열기` } : {});
+    if (onRack) plate.addEventListener("keydown", e => { if (e.key === "Enter") onRack(); });
     el("rect", { class: "rack-plate", x: 64, y: 18, width: 92, height: 22, rx: 2 }, plate);
     el("text", { class: "rack-plate-text", x: 110, y: 32.5, "text-anchor": "middle" }, plate).textContent = rackName(rack);
     [22, 190].forEach(x => {
@@ -104,17 +63,17 @@
       const server = rack.servers[i];
       if (!server) {
         el("rect", { class: "blank", x: 34, y, width: 152, height: unitH, rx: 3 });
-        [y + 15, y + 23, y + 31].forEach(ly => el("line", { class: "blank-line", x1: 46, y1: ly, x2: 174, y2: ly }));
+        [y + 18, y + 28, y + 38].forEach(ly => el("line", { class: "blank-line", x1: 46, y1: ly, x2: 174, y2: ly }));
         continue;
       }
-      const g = el("g", { class: "unit", tabindex: 0, role: "link", "aria-label": `${server.host} ${server.title}으로 이동` });
-      g.addEventListener("click", e => { e.stopPropagation(); goTo("srv-" + server.dir); });
-      g.addEventListener("keydown", e => { if (e.key === "Enter") goTo("srv-" + server.dir); });
+      const g = el("g", { class: "unit", tabindex: 0, role: "link", "aria-label": `${server.host} ${server.title} 보기` });
+      g.addEventListener("click", e => { e.stopPropagation(); onUnit && onUnit(server); });
+      g.addEventListener("keydown", e => { if (e.key === "Enter") onUnit && onUnit(server); });
 
       el("rect", { class: "unit-body", x: 34, y, width: 152, height: unitH, rx: 3 }, g);
-      el("circle", { class: "power" + (lit(server.topics) ? " on" : ""), cx: 44, cy: y + 11, r: 2.6 }, g);
-      el("text", { class: "unit-no", x: 51, y: y + 14 }, g).textContent = server.host;
-      el("text", { class: "unit-title", x: 41, y: y + 33 }, g).textContent = server.title;
+      el("circle", { class: "power" + (lit(server.topics) ? " on" : ""), cx: 44, cy: y + 13, r: 3 }, g);
+      el("text", { class: "unit-no", x: 52, y: y + 17 }, g).textContent = server.host;
+      el("text", { class: "unit-title", x: 41, y: y + 40 }, g).textContent = server.title;
 
       const right = 176, step = 9;
       const ledLeft = right - (server.topics.length - 1) * step;
@@ -122,93 +81,161 @@
         const led = el("circle", { class: "led " + t.status, cx: ledLeft + j * step, cy: y + 13, r: 3 }, g);
         el("title", {}, led).textContent = `${t.name} · ${STATUS_LABEL[t.status]}`;
       });
-      for (let x = ledLeft - 4; x + 3 <= right + 4; x += 5) el("rect", { class: "vent", x, y: y + 24, width: 2.5, height: 14, rx: 1 }, g);
-      el("rect", { class: "activity", x: 40, y: y + unitH - 7, width: 8, height: 2.5, rx: 1, style: `animation-delay:${((i * 0.43) + rack.id.charCodeAt(0) * 0.17) % 2.2}s` }, g);
+      // 통풍구는 과목 이름이 끝난 뒤 오른쪽 아래에만
+      for (let x = 158; x + 3 <= right + 4; x += 5) el("rect", { class: "vent", x, y: y + 28, width: 2.5, height: 16, rx: 1 }, g);
+      el("rect", { class: "activity", x: 41, y: y + unitH - 8, width: 8, height: 2.5, rx: 1, style: `animation-delay:${(i * 0.43 + Number(rack.id) * 0.61) % 2.2}s` }, g);
     }
     return svg;
   }
 
-  const room = document.getElementById("room");
-  racks.forEach(rack => {
-    const all = topicsOf(rack);
-    const card = document.createElement("div");
-    card.className = "rack-card";
-    card.appendChild(drawRack(rack));
-    card.insertAdjacentHTML("beforeend", `
-      <a class="rack-label" href="#rack-${rack.id}">
-        <span class="rack-id">${rackName(rack)}</span>
-        <span class="rack-name">${rack.name}</span>
-        <span class="rack-meta">서버 ${rack.servers.length}대 · 램프 ${lit(all)}/${all.length}</span>
-      </a>`);
-    room.appendChild(card);
-  });
+  function serverCard(s) {
+    return `
+      <article class="server-card" id="srv-${s.dir}">
+        <div class="server-card-head">
+          <span class="unit-tag">${s.host}</span>
+          <div class="server-card-title">
+            <h3>${s.title}</h3>
+            <span class="server-lamps">${lit(s.topics)}/${s.topics.length}</span>
+          </div>
+        </div>
+        <ul class="mini-topics">
+          ${s.topics.map(t => {
+            const tip = `${t.hook} · ${STATUS_LABEL[t.status]}`;
+            const inner = `<i class="led-dot ${t.status}" aria-hidden="true"></i><span class="name">${t.name}</span><span class="sr-only">(${STATUS_LABEL[t.status]})</span>`;
+            return t.status === "todo"
+              ? `<li><span class="disabled" title="${tip}">${inner}</span></li>`
+              : `<li><a href="${s.dir}/${t.slug}.html" title="${tip}">${inner}</a></li>`;
+          }).join("")}
+        </ul>
+      </article>`;
+  }
 
-  // ---------- 모니터 ----------
-  (function drawMonitor() {
+  function monitor() {
     const count = { todo: 0, draft: 0, understood: 0, interview: 0 };
     flat.forEach(t => count[t.status]++);
     const total = flat.length;
     const color = { interview: "var(--accent)", understood: "var(--primary)", draft: "var(--focus-tint)" };
     const servers = racks.flatMap(r => r.servers);
-    const onlineServers = servers.filter(s => lit(s.topics)).length;
-    const onlineRacks = racks.filter(r => lit(topicsOf(r))).length;
-    document.getElementById("monitor").innerHTML = `
-      <div class="monitor-head">
-        <div>
-          <div class="eyebrow">Room Monitor</div>
-          <strong>초록불 ${count.interview} / ${total}</strong>
-        </div>
-        <div class="monitor-stats">
-          <span><b>${onlineRacks}</b> / ${racks.length} 랙 가동</span>
-          <span><b>${onlineServers}</b> / ${servers.length} 서버 가동</span>
-          <span><b>${total - count.todo}</b> 램프 켜짐</span>
-        </div>
-      </div>
-      <div class="progress-bar">
-        ${["interview", "understood", "draft"].map(s => `<span style="width:${count[s] / total * 100}%;background:${color[s]}"></span>`).join("")}
-      </div>
-      <div class="legend">
-        ${["interview", "understood", "draft", "todo"].map(s =>
-          `<span><i class="led-dot ${s}"></i>${STATUS_LABEL[s]} ${count[s]}</span>`).join("")}
-      </div>`;
-  })();
-
-  // ---------- 장비 목록 ----------
-  document.getElementById("racks").innerHTML = racks.map(rack => {
-    const all = topicsOf(rack);
     return `
-    <section class="rack-section" id="rack-${rack.id}">
-      <div class="rack-section-head">
-        <div class="rack-chip">${rackName(rack)}</div>
-        <div>
-          <h2>${rack.name}</h2>
-          <p>${rack.desc}</p>
-        </div>
-        <span class="rack-section-meta">램프 ${lit(all)} / ${all.length}</span>
-      </div>
-      <div class="server-grid">
-      ${rack.servers.map(s => `
-        <article class="server-card" id="srv-${s.dir}">
-          <div class="server-card-head">
-            <span class="unit-tag">${s.host}</span>
-            <div class="server-card-title">
-              <h3>${s.title}</h3>
-              <span class="server-lamps">${lit(s.topics)}/${s.topics.length}</span>
-            </div>
+      <section class="monitor">
+        <div class="monitor-head">
+          <div>
+            <div class="eyebrow">Room Monitor</div>
+            <strong>초록불 ${count.interview} / ${total}</strong>
           </div>
-          <ul class="mini-topics">
-            ${s.topics.map(t => {
-              const tip = `${t.hook} · ${STATUS_LABEL[t.status]}`;
-              const inner = `<i class="led-dot ${t.status}" aria-hidden="true"></i><span class="name">${t.name}</span><span class="sr-only">(${STATUS_LABEL[t.status]})</span>`;
-              return t.status === "todo"
-                ? `<li><span class="disabled" title="${tip}">${inner}</span></li>`
-                : `<li><a href="${s.dir}/${t.slug}.html" title="${tip}">${inner}</a></li>`;
-            }).join("")}
-          </ul>
-        </article>`).join("")}
-      </div>
-    </section>`;
-  }).join("");
+          <div class="monitor-stats">
+            <span><b>${racks.filter(r => lit(topicsOf(r))).length}</b> / ${racks.length} 랙 가동</span>
+            <span><b>${servers.filter(s => lit(s.topics)).length}</b> / ${servers.length} 서버 가동</span>
+            <span><b>${total - count.todo}</b> 램프 켜짐</span>
+          </div>
+        </div>
+        <div class="progress-bar">
+          ${["interview", "understood", "draft"].map(s => `<span style="width:${count[s] / total * 100}%;background:${color[s]}"></span>`).join("")}
+        </div>
+        <div class="legend">
+          ${["interview", "understood", "draft", "todo"].map(s =>
+            `<span><i class="led-dot ${s}"></i>${STATUS_LABEL[s]} ${count[s]}</span>`).join("")}
+        </div>
+      </section>`;
+  }
+
+  // ---------- 화면 1: 서버실 ----------
+  function roomView() {
+    document.title = window.CS.SITE_NAME;
+    app.innerHTML = `
+      <section class="hero">
+        <div class="eyebrow">Server Room · ${racks.length} Racks · ${flat.length} Lamps</div>
+        <h1>면접까지 가는 <em>컴퓨터 사이언스</em> 서버실.</h1>
+        <p>랙 하나가 큰 주제, 랙에 꽂힌 서버 한 대가 과목, 서버의 램프 하나가 주제입니다. 랙을 눌러 들어가 보세요.</p>
+      </section>
+      <section class="room" aria-label="서버실의 랙들"></section>
+      ${monitor()}`;
+    const room = app.querySelector(".room");
+    racks.forEach(rack => {
+      const all = topicsOf(rack);
+      const card = document.createElement("div");
+      card.className = "rack-card";
+      card.appendChild(drawRack(rack, {
+        onRack: () => { location.hash = rackHref(rack); },
+        onUnit: s => { location.hash = rackHref(rack, s.dir); },
+      }));
+      card.insertAdjacentHTML("beforeend", `
+        <a class="rack-label" href="${rackHref(rack)}">
+          <span class="rack-id">${rackName(rack)}</span>
+          <span class="rack-name" style="view-transition-name: rackname-${rack.id}">${rack.name}</span>
+          <span class="rack-meta">서버 ${rack.servers.length}대 · 램프 ${lit(all)}/${all.length}</span>
+        </a>`);
+      room.appendChild(card);
+    });
+  }
+
+  // ---------- 화면 2: 랙 하나 ----------
+  function rackView(rack, focusDir) {
+    const i = racks.indexOf(rack);
+    const prev = racks[i - 1], next = racks[i + 1];
+    const all = topicsOf(rack);
+    document.title = `${rackName(rack)} ${rack.name} · 서버실`;
+    app.innerHTML = `
+      <nav class="rack-nav" aria-label="랙 이동">
+        <a class="back-link" href="#/">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          서버실
+        </a>
+        <div class="rack-switch">
+          ${prev ? `<a class="btn" href="${rackHref(prev)}">← ${rackName(prev)}</a>` : ""}
+          ${next ? `<a class="btn" href="${rackHref(next)}">${rackName(next)} →</a>` : ""}
+        </div>
+      </nav>
+      <div class="rack-view">
+        <div class="rack-view-art"></div>
+        <div class="rack-view-body">
+          <div class="eyebrow">${rackName(rack)} · 서버 ${rack.servers.length}대 · 램프 ${lit(all)}/${all.length}</div>
+          <h1 style="view-transition-name: rackname-${rack.id}">${rack.name}</h1>
+          <p class="rack-desc">${rack.desc}</p>
+          <div class="server-grid">${rack.servers.map(serverCard).join("")}</div>
+        </div>
+      </div>`;
+    app.querySelector(".rack-view-art").appendChild(drawRack(rack, { onUnit: s => highlight(s.dir) }));
+    if (focusDir) highlight(focusDir);
+  }
+
+  function highlight(dir) {
+    const card = document.getElementById("srv-" + dir);
+    if (!card) return;
+    card.classList.remove("pulse");
+    void card.offsetWidth; // 다시 누를 때도 애니메이션이 처음부터
+    card.classList.add("pulse");
+    card.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" });
+  }
+
+  // ---------- 주소 → 화면 ----------
+  function route() {
+    const h = location.hash;
+    let m = h.match(/^#\/rack\/(\d+)(?:\/([\w-]+))?/);
+    // 예전 주소(#rack-001, #srv-ds)도 받아 준다
+    if (!m && (m = h.match(/^#rack-(\d+)/))) m = [, m[1]];
+    if (!m && (m = h.match(/^#srv-([\w-]+)/))) {
+      const r = racks.find(r => r.servers.some(s => s.dir === m[1]));
+      m = r ? [, r.id, m[1]] : null;
+    }
+    const rack = m && racks.find(r => r.id === m[1]);
+    rack ? rackView(rack, m[2]) : roomView();
+    scrollTo(0, 0);
+  }
+
+  // 화면을 바꿀 때: 같은 랙은 제자리에서 다음 위치로 날아가고, 나머지는 부드럽게 바뀐다
+  function transition() {
+    if (document.startViewTransition && !reduceMotion) {
+      document.startViewTransition(route);
+    } else {
+      route();
+      if (!reduceMotion) { app.classList.remove("app-enter"); void app.offsetWidth; app.classList.add("app-enter"); }
+    }
+  }
+
+  addEventListener("hashchange", transition);
+  addEventListener("keydown", e => { if (e.key === "Escape" && location.hash.startsWith("#/rack")) location.hash = "#/"; });
+  route();
 </script>
 </body>
 </html>
