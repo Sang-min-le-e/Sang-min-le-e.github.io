@@ -28,7 +28,7 @@
   const face = document.querySelector("[data-project-face]");
   if (!face) return;
   const p = window.readProjectMeta(document, location.pathname.split("/").pop());
-  document.title = `${p.host} ${p.name} · My Private Cloud`;
+  document.title = `${p.host} ${p.name} · My Compiled Datacenter`;
 
   const crumb = document.querySelector("[data-crumb]");
   if (crumb) crumb.innerHTML = `<a href="../index.html#/">Production</a> <span class="sep">/</span> ${p.host} <span class="sep">/</span> <span class="badge ${p.status === "live" ? "interview" : p.status === "dev" ? "understood" : "todo"}">${p.statusLabel}</span>`;

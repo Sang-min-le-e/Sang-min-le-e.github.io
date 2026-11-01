@@ -1,7 +1,7 @@
 // 모든 페이지가 공유하는 헤더, 목차, 이전/다음 링크.
 // 페이지는 <body data-root="../" data-topic="ds/hash-table"> 처럼 위치만 알려주면 된다.
 (function () {
-  const SITE_NAME = "My Private Cloud · CSE 데이터센터";
+  const SITE_NAME = "My Compiled Datacenter";
   const GITHUB_URL = "https://github.com/Sang-min-le-e";
   const STATUS_LABEL = { todo: "예정", draft: "초안", understood: "이해함", interview: "면접 가능" };
   const body = document.body;

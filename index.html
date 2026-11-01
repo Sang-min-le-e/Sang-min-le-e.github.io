@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My Private Cloud · CSE 데이터센터</title>
+  <title>My Compiled Datacenter</title>
   <meta name="description" content="CS 기초부터 백엔드, 인프라, CI/CD까지 직접 켜 보며 정리하는 공부 노트">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
@@ -225,7 +225,7 @@
 
   // ---------- 화면 4: 프로필 ----------
   function profileView() {
-    document.title = `Profile · ${PROFILE.name} · My Private Cloud`;
+    document.title = `Profile · ${PROFILE.name} · My Compiled Datacenter`;
     app.innerHTML = `
       <nav class="rack-nav" aria-label="이동">
         <a class="back-link" href="#/">
@@ -274,8 +274,8 @@
     app.innerHTML = `
       <section class="hero">
         <div class="hero-text">
-          <div class="eyebrow">CSE Datacenter · ${racks.length} Racks · ${flat.length} Lamps</div>
-          <h1>My Private <em>Cloud</em><span class="h1-sub">CSE 데이터센터</span></h1>
+          <div class="eyebrow">CS · Stack · Projects · ${racks.length} Racks · ${flat.length} Lamps</div>
+          <h1>My <em>Compiled</em> Datacenter<span class="h1-sub">공부한 내용을 프로젝트로</span></h1>
           <p>랙 하나가 큰 주제, 랙에 꽂힌 서버 한 대가 과목, 서버의 램프 하나가 주제입니다. 랙을 눌러 들어가 보세요.</p>
         </div>
         ${operatorBadge()}
@@ -355,7 +355,7 @@
     const i = racks.indexOf(rack);
     const prev = racks[i - 1], next = racks[i + 1];
     const all = topicsOf(rack);
-    document.title = `${rackName(rack)} ${rack.name} · My Private Cloud`;
+    document.title = `${rackName(rack)} ${rack.name} · My Compiled Datacenter`;
     app.innerHTML = `
       <nav class="rack-nav" aria-label="랙 이동">
         <a class="back-link" href="#/">
