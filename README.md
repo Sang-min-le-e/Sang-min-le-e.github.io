@@ -35,21 +35,6 @@ CS 기초부터 백엔드, 인프라, CI/CD까지 직접 만져 보며 정리하
 - Production 랙: GitHub API로 `projects/` 폴더의 파일 목록을 읽어 자동으로 배치
 - 배포: GitHub Pages. `main`에 푸시하면 자동으로 다시 배포됨
 
-## 폴더 구조
-
-```
-index.html              홈 (데이터센터, 랙 화면)
-ds/, os/, db/ …         주제 페이지. 과목 폴더마다 주제 하나 = HTML 파일 하나
-projects/               프로젝트 페이지. NNN-이름.html 하나 = 프로젝트 하나
-assets/
-  topics.js             랙, 서버, 주제 목록과 진행 상태
-  style.css             디자인
-  layout.js             헤더, 위치 표시, 이전/다음 링크
-  project-page.js       프로젝트 페이지 머리판 (파일의 meta에서 생성)
-_template.html          새 주제용 틀
-projects/_template.html 새 프로젝트용 틀
-TEMPLATE.md             작성 가이드
-```
 
 ## 내용 추가하기
 
@@ -58,10 +43,3 @@ TEMPLATE.md             작성 가이드
 
 자세한 규칙과 디자인 토큰은 [TEMPLATE.md](TEMPLATE.md)에 있습니다.
 
-## 로컬에서 보기
-
-```bash
-python3 -m http.server 8000
-```
-
-브라우저에서 `http://localhost:8000`을 엽니다. 파일을 바로 열면(`file://`) 프로젝트 목록을 읽지 못하니 서버로 띄워서 봅니다.
