@@ -234,6 +234,7 @@ a.op-badge:hover { color: var(--text); transform: translateY(-4px) rotate(-.6deg
 .unit:hover .unit-body, .unit:focus-visible .unit-body { stroke: var(--focus-tint); }
 .unit.current .unit-body { stroke: var(--primary); stroke-width: 2; }
 .unit-no { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: .04em; fill: var(--border-strong); }
+.unit-count { font-family: var(--font-mono); font-size: 10px; font-weight: 700; fill: var(--focus-tint); }
 .unit-title { font-family: var(--font-sans); font-size: 15px; font-weight: 600; fill: #fff; }
 .vent { fill: var(--rack); }
 .power { fill: var(--rack-3); }

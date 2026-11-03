@@ -23,6 +23,7 @@
   const { racks, flat, rackName, topicHref, STATUS_LABEL } = window.CS;
   const app = document.getElementById("app");
   const SLOTS = Math.max(...racks.map(r => r.servers.length)); // 랙 높이를 맞추려고 가장 큰 랙 기준
+  const MAX_LEDS = 7; // 서버 칸 하나에 램프로 그릴 수 있는 주제 수
   const lit = list => list.filter(t => t.status !== "todo").length;
   const topicsOf = rack => rack.servers.flatMap(s => s.topics);
   const rackHref = (rack, dir) => `#/rack/${rack.id}` + (dir ? `/${dir}` : "");
@@ -116,11 +117,16 @@
       el("text", { class: "unit-title", x: 41, y: y + 40 }, g).textContent = server.title;
 
       const right = 176, step = 9;
-      const ledLeft = right - (server.topics.length - 1) * step;
-      server.topics.forEach((t, j) => {
-        const led = el("circle", { class: "led " + t.status, cx: ledLeft + j * step, cy: y + 13, r: 3 }, g);
-        el("title", {}, led).textContent = `${t.name} · ${STATUS_LABEL[t.status]}`;
-      });
+      if (server.topics.length > MAX_LEDS) {
+        // 램프가 서버 번호와 겹치기 시작하면 켜진 수를 숫자로 보여 준다
+        el("text", { class: "unit-count", x: right + 3, y: y + 17, "text-anchor": "end" }, g).textContent = `${lit(server.topics)}/${server.topics.length}`;
+      } else {
+        const ledLeft = right - (server.topics.length - 1) * step;
+        server.topics.forEach((t, j) => {
+          const led = el("circle", { class: "led " + t.status, cx: ledLeft + j * step, cy: y + 13, r: 3 }, g);
+          el("title", {}, led).textContent = `${t.name} · ${STATUS_LABEL[t.status]}`;
+        });
+      }
       // 통풍구는 과목 이름이 끝난 뒤 오른쪽 아래에만
       for (let x = 158; x + 3 <= right + 4; x += 5) el("rect", { class: "vent", x, y: y + 28, width: 2.5, height: 16, rx: 1 }, g);
       el("rect", { class: "activity", x: 41, y: y + unitH - 8, width: 8, height: 2.5, rx: 1, style: `animation-delay:${(i * 0.43 + Number(rack.id) * 0.61) % 2.2}s` }, g);
