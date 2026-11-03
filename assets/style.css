@@ -366,25 +366,6 @@ a.op-badge:hover { color: var(--text); transform: translateY(-4px) rotate(-.6deg
 .qa[open] summary::after { content: "−"; }
 .qa[open] summary { border-bottom: 1px solid var(--border); }
 .qa .answer { padding: 16px; color: var(--text-2); font-size: 15px; }
-.qa .answer.written { white-space: pre-wrap; }
-.qa .answer.empty { color: var(--text-3); font-size: 14px; }
-
-/* 면접 답변 편집 모드 */
-.edit-panel { margin: 16px 0; font-size: 14px; color: var(--text-2); }
-.edit-panel:has(strong) { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); padding: 16px; }
-.edit-panel strong { color: var(--text); }
-.edit-panel p { margin: 4px 0 12px; }
-.edit-token { display: flex; gap: 8px; flex-wrap: wrap; }
-.edit-token input, .qa .answer textarea {
-  border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface);
-  color: var(--text); font: inherit; padding: 8px 12px;
-}
-.edit-token input { flex: 1 1 240px; min-width: 0; font-family: var(--font-mono); font-size: 13px; }
-.qa .answer textarea { display: block; width: 100%; resize: vertical; line-height: 1.6; }
-.edit-token input:focus, .qa .answer textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--focus-tint); }
-.edit-actions { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin-top: 8px; }
-.edit-status { font-size: 13px; color: var(--text-3); }
-.edit-status:empty { display: none; }
 
 /* 이전/다음 */
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 64px 0 96px; }
