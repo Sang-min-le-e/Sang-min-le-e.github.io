@@ -39,6 +39,7 @@ CS 기초부터 백엔드, 인프라, CI/CD까지 직접 만져 보며 정리하
 ## 내용 추가하기
 
 - **주제**: `_template.html`을 `<과목폴더>/<이름>.html`로 복사해 쓰고, `assets/topics.js`에서 그 주제의 `status`를 바꿉니다.
+- **면접 답변**: 주제 페이지 주소 끝에 `?edit`를 붙여 열고 GitHub 토큰으로 저장합니다. 저장하면 `assets/answers.json`에 커밋되어 다시 배포됩니다.
 - **프로젝트**: `projects/_template.html`을 `projects/002-이름.html`로 복사해 쓰고 푸시하면 Production 랙에 자동으로 꽂힙니다.
 
 자세한 규칙과 디자인 토큰은 [TEMPLATE.md](TEMPLATE.md)에 있습니다.

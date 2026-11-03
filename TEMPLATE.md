@@ -102,11 +102,17 @@ slug는 영어 소문자와 `-`만 씁니다.
 
 **면접 질문**
 ```html
-<details class="qa">
+<details class="qa" data-q="question-name">
   <summary>질문 내용</summary>
-  <div class="answer">내 답변</div>
+  <div class="answer" data-hint>나에게 보여 줄 안내문</div>
 </details>
 ```
+
+답변은 HTML이 아니라 사이트에서 씁니다. 주제 페이지 주소 끝에 `?edit`를 붙여 열고, 질문별로 저장하면 `assets/answers.json`에 커밋되어 모두에게 보입니다.
+
+- `data-q`: 페이지 안에서 겹치지 않는 영어 이름입니다. 저장된 답변과 연결되니 답변을 쓴 뒤에는 바꾸지 않습니다.
+- `data-hint`: 칸의 글이 답변이 아니라 안내문이라는 표시입니다. 방문자에게는 "아직 작성 전입니다."로 보이고, 편집 모드에서는 입력창의 흐린 안내로 보입니다.
+- 토큰: [GitHub 토큰 발급 화면](https://github.com/settings/personal-access-tokens/new)에서 이 저장소만 고르고, Contents를 Read and write로 주고, 만료일을 정합니다. 처음 편집할 때 한 번 입력하면 그 브라우저에 저장됩니다. 공용 PC에서는 쓰지 않습니다.
 
 **코드**
 ```html
@@ -259,7 +265,7 @@ slug는 영어 소문자와 `-`만 씁니다.
 [ ] 03 실험: 보여줄 것 하나를 정함
 [ ] 03 실험: 일부러 망가뜨리는 버튼이 있음
 [ ] 03 실험: 로그에 숫자가 남음
-[ ] 04 면접 질문 2~3개, 노트 덮고 먼저 답해 봄
+[ ] 04 면접 질문 2~3개, 노트 덮고 먼저 답해 본 뒤 ?edit 화면에서 저장
 [ ] 05 헷갈렸던 것 1개 이상
 [ ] 로컬에서 열어 보고 휴대폰 너비에서도 확인
 [ ] 다 채웠으면 status를 understood로
