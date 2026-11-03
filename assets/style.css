@@ -444,7 +444,6 @@ a.op-badge:hover { color: var(--text); transform: translateY(-4px) rotate(-.6deg
 .trouble dd { margin: 0; font-size: 15px; line-height: 1.6; }
 .project .project-intro { margin: 0 0 24px; font-size: 17px; line-height: 1.75; color: var(--text-2); }
 
-.prod-error { margin: 0 0 8px; font-size: 14px; color: var(--border); }
 
 /* ---------- 반응형 (1024 / 767 / 425) ---------- */
 @media (max-width: 1024px) {

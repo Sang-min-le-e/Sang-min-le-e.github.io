@@ -13,10 +13,11 @@
 <body data-root="./">
 
 <!-- 화면은 주소의 # 뒤로 바뀐다:  #/ 데이터센터,  #/rack/001 랙 화면(과목 목록),  #/rack/001/ds 서버 화면(그 과목의 주제 목록)
-     프로젝트는 각자 HTML 파일(projects/NNN-이름.html)이고, 홈이 projects 폴더를 훑어 랙에 꽂는다 -->
+     프로젝트는 각자 HTML 파일(projects/NNN-이름.html)이고, 홈이 assets/projects.js의 목록을 읽어 랙에 꽂는다 -->
 <main class="wrap-wide" id="app"></main>
 
 <script src="assets/topics.js"></script>
+<script src="assets/projects.js"></script>
 <script src="assets/layout.js"></script>
 <script src="assets/project-page.js"></script>
 <script>
@@ -32,34 +33,15 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
   // ---------- 프로젝트 찾기 ----------
-  // projects 폴더의 NNN-이름.html 파일 목록을 알아낸다.
-  // 로컬 미리보기 서버는 폴더 목록 페이지를 주고, GitHub Pages는 안 주니 그때는 GitHub API로 묻는다.
-  const PROJECT_FILE = /^\d{3}-[\w-]+\.html$/;
-  async function listProjectFiles() {
-    try {
-      const res = await fetch("projects/");
-      if (res.ok && (res.headers.get("content-type") || "").includes("html")) {
-        const names = [...(await res.text()).matchAll(/href="([^"]+)"/g)].map(m => decodeURIComponent(m[1]));
-        const found = names.filter(n => PROJECT_FILE.test(n));
-        if (found.length) return found;
-      }
-    } catch (e) { /* 다음 방법으로 */ }
-    try {
-      const res = await fetch("https://api.github.com/repos/Sang-min-le-e/Sang-min-le-e.github.io/contents/projects");
-      if (res.ok) return (await res.json()).map(f => f.name).filter(n => PROJECT_FILE.test(n));
-    } catch (e) { /* 목록을 못 받음 */ }
-    return null;
-  }
-  // 파일을 받아 맨 위 meta에서 이름, 소개, 상태, 스택을 읽는다
+  // assets/projects.js의 파일을 받아 맨 위 meta에서 이름, 소개, 상태, 스택을 읽는다
   let projectsPromise;
   function loadProjects() {
     projectsPromise = projectsPromise || (async () => {
-      const files = await listProjectFiles();
-      if (!files) return null;
-      const list = await Promise.all(files.sort().map(async name => {
+      const list = await Promise.all([...window.PROJECT_FILES].sort().map(async name => {
         try {
-          const html = await (await fetch("projects/" + name)).text();
-          return readProjectMeta(new DOMParser().parseFromString(html, "text/html"), name);
+          const res = await fetch("projects/" + name);
+          if (!res.ok) return null;
+          return readProjectMeta(new DOMParser().parseFromString(await res.text(), "text/html"), name);
         } catch (e) { return null; }
       }));
       return list.filter(Boolean);
@@ -319,7 +301,7 @@
   }
 
   // ---------- Production 랙 (가로) ----------
-  // 프로젝트 파일 목록을 받아 오는 동안은 빈 패널만 보이고, 받으면 채운다
+  // 프로젝트 파일을 받아 오는 동안은 빈 패널만 보이고, 받으면 채운다
   function prodSlots(list) {
     const n = Math.max(3, list.length); // 빈 칸은 빈 패널로 채운다
     return Array.from({ length: n }, (_, i) => {
@@ -350,9 +332,7 @@
     const list = await loadProjects();
     const slots = document.getElementById("prod-slots");
     if (!slots) return; // 그 사이 다른 화면으로 갔으면 그만
-    slots.innerHTML = list
-      ? prodSlots(list)
-      : `<p class="prod-error">프로젝트 목록을 불러오지 못했어요. 잠시 뒤 새로고침해 주세요.</p>${prodSlots([])}`;
+    slots.innerHTML = prodSlots(list);
   }
 
   // ---------- 화면 2: 랙 하나 ----------
@@ -423,7 +403,7 @@
     const pm = h.match(/^#\/project\/(\d+)/);
     if (pm) {
       loadProjects().then(list => {
-        const p = list && list.find(p => p.id === pm[1]);
+        const p = list.find(p => p.id === pm[1]);
         location.replace(p ? "projects/" + p.file : "#/");
       });
       return;

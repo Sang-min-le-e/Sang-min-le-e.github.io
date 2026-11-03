@@ -32,14 +32,14 @@ CS 기초부터 백엔드, 인프라, CI/CD까지 직접 만져 보며 정리하
 - HTML, CSS, JavaScript만으로 만든 정적 사이트 (프레임워크, 빌드 도구 없음)
 - 화면 전환: 주소의 `#`로 화면을 바꾸고, [View Transitions API](https://developer.mozilla.org/docs/Web/API/View_Transitions_API)로 누른 랙이 다음 화면 자리로 이어지게 함
 - 서버 랙 그림: 데이터(`assets/topics.js`)를 읽어 SVG로 그림
-- Production 랙: GitHub API로 `projects/` 폴더의 파일 목록을 읽어 자동으로 배치
+- Production 랙: `assets/projects.js`의 파일 목록을 읽어 각 프로젝트 파일의 meta로 배치
 - 배포: GitHub Pages. `main`에 푸시하면 자동으로 다시 배포됨
 
 
 ## 내용 추가하기
 
 - **주제**: `_template.html`을 `<과목폴더>/<이름>.html`로 복사해 쓰고, `assets/topics.js`에서 그 주제의 `status`를 바꿉니다.
-- **프로젝트**: `projects/_template.html`을 `projects/002-이름.html`로 복사해 쓰고 푸시하면 Production 랙에 자동으로 꽂힙니다.
+- **프로젝트**: `projects/_template.html`을 `projects/002-이름.html`로 복사해 쓰고, `assets/projects.js`에 파일 이름을 추가해 푸시하면 Production 랙에 꽂힙니다.
 
 자세한 규칙과 디자인 토큰은 [TEMPLATE.md](TEMPLATE.md)에 있습니다.
 
