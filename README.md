@@ -40,6 +40,7 @@ CS 기초부터 백엔드, 인프라, CI/CD까지 직접 만져 보며 정리하
 
 - **주제**: `_template.html`을 `<과목폴더>/<이름>.html`로 복사해 쓰고, `assets/topics.js`에서 그 주제의 `status`를 바꿉니다.
 - **프로젝트**: `projects/_template.html`을 `projects/002-이름.html`로 복사해 쓰고, `assets/projects.js`에 파일 이름을 추가해 푸시하면 Production 랙에 꽂힙니다.
+- **글자 수정**: `python3 tools/edit-server.py`를 실행하고 `http://localhost:8767`에서 편집 버튼을 켠 뒤 글자를 눌러 고칩니다. 내 컴퓨터의 파일이 바로 바뀌고, 커밋하고 푸시하면 사이트에 반영됩니다. 실제 사이트에서는 수정할 수 없습니다.
 
 자세한 규칙과 디자인 토큰은 [TEMPLATE.md](TEMPLATE.md)에 있습니다.
 
