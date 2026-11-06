@@ -42,6 +42,17 @@ META = re.compile(r'<meta\s+name="project:(\w+)"\s+content="([^"]*)"')
 CODE_FILES = ("index.html", "assets/layout.js", "assets/project-page.js")
 CODE_UNSAFE = re.compile(r"[`$\"'\\<>&]")
 
+TAG_NAME = re.compile(r"<(/?)([a-zA-Z][a-zA-Z0-9-]*)")
+VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
+HEADINGS = {"h1", "h2", "h3", "h4", "h5", "h6"}
+BLOCKS = HEADINGS | {"p", "li", "div", "dt", "dd", "summary", "td", "th", "pre", "blockquote", "figcaption"}
+CONTAINERS = {"div", "ul", "ol", "dl", "section"}
+PROTECTED = re.compile(r"\b(?:id|data-[\w-]+)\s*=|\bdata-[\w-]+")
+LINE_END = re.compile(r"[ \t]*\r?\n")
+FOLLOWING_DD = re.compile(r"\s*<dd\b.*?</dd\s*>", re.S | re.I)
+PRECEDING_DT = re.compile(r"<dt\b(?:(?!</dt).)*</dt\s*>\s*$", re.S | re.I)
+EMPTY_ANSWER = "아직 답변을 쓰지 않았다."
+
 
 class EditError(Exception):
     def __init__(self, status, message):
@@ -102,17 +113,170 @@ def resolve_html(rel_path):
     return path
 
 
-def save_marked(rel_path, start, end, old, new):
-    """위치 주석이 있는 글자를 고친다. 그 자리의 글자가 다르면 파일이 바뀐 것이므로 멈춘다."""
+def load_marked(rel_path, start, end, old):
+    """위치 주석이 가리키는 글자를 확인한다. 그 자리의 글자가 다르면 파일이 바뀐 것이므로 멈춘다."""
     path = resolve_html(rel_path)
     source = read(path)
     if not (isinstance(start, int) and isinstance(end, int) and 0 <= start < end <= len(source)):
         raise EditError(409, "파일이 바뀌었습니다. 새로고침한 뒤 다시 고쳐 주세요.")
     if normalize(html.unescape(source[start:end])) != normalize(old):
         raise EditError(409, "파일이 바뀌었습니다. 새로고침한 뒤 다시 고쳐 주세요.")
+    return path, source
+
+
+def save_marked(rel_path, start, end, old, new):
+    path, source = load_marked(rel_path, start, end, old)
     replacement = html.escape(new, quote=False)
     write(path, source[:start] + replacement + source[end:])
     return {"file": rel_path, "delta": len(replacement) - (end - start)}
+
+
+class Element:
+    def __init__(self, name, open_start, open_end):
+        self.name = name
+        self.open_start = open_start
+        self.open_end = open_end
+        self.close_start = None
+        self.close_end = None
+
+
+def ancestors(source, position):
+    """position의 글자를 감싼 요소들을 안쪽부터 돌려준다. 각 요소의 닫는 태그 위치까지 채운다."""
+    stack = []
+    found = None
+    for token in TOKEN.finditer(source, BODY.search(source).end()):
+        if found is None and token.start() > position:
+            found = list(stack)
+        tag = TAG_NAME.match(token.group())
+        if token.group(1) or not tag:
+            continue
+        name = tag.group(2).lower()
+        if tag.group(1):
+            names = [el.name for el in stack]
+            if name not in names:
+                continue
+            while stack:
+                el = stack.pop()
+                # 닫는 태그를 생략한 요소는 바깥 요소가 닫히는 자리에서 끝난다
+                is_match = el.name == name
+                el.close_start = token.start()
+                el.close_end = token.end() if is_match else token.start()
+                if is_match:
+                    break
+        elif name not in VOID and not token.group().endswith("/>"):
+            stack.append(Element(name, token.start(), token.end()))
+    if not found:
+        raise EditError(400, "이 글자는 삭제하거나 아래에 추가할 수 없습니다.")
+    result = list(reversed(found))
+    if any(el.close_end is None for el in result):
+        raise EditError(400, "태그가 닫히지 않은 곳이라 삭제하거나 추가할 수 없습니다.")
+    return result
+
+
+def open_tag(source, el):
+    return source[el.open_start : el.open_end]
+
+
+def locate_block(source, start):
+    """글자가 속한 블록과 그 바깥 요소들을 찾는다. 실험 상자처럼 코드가 쓰는 곳은 막는다."""
+    parents = ancestors(source, start)
+    for el in parents:
+        if el.name == "nav" or re.search(r'class="[^"]*\blab\b', open_tag(source, el)):
+            raise EditError(400, "실험 상자와 메뉴 안의 글자는 코드와 연결되어 있어 삭제하거나 추가할 수 없습니다.")
+    for index, el in enumerate(parents):
+        if el.name in BLOCKS:
+            if PROTECTED.search(open_tag(source, el)):
+                raise EditError(400, "코드가 쓰는 요소라 삭제하거나 추가할 수 없습니다.")
+            return parents, index
+    raise EditError(400, "이 글자는 삭제하거나 아래에 추가할 수 없습니다.")
+
+
+def line_extent(source, start, end):
+    """요소만 있는 줄이면 줄째로 지워 빈 줄이 남지 않게 한다."""
+    line_start = source.rfind("\n", 0, start) + 1
+    after = LINE_END.match(source, end)
+    if not source[line_start:start].strip() and after:
+        return line_start, after.end()
+    return start, end
+
+
+def delete_marked(rel_path, start, end, old, scope):
+    path, source = load_marked(rel_path, start, end, old)
+    parents, index = locate_block(source, start)
+
+    if scope == "piece":
+        # 조각만 지울 때 <strong>처럼 그 글자만 감싼 표시도 함께 지운다
+        from_at, to_at = start, end
+        for el in parents[:index]:
+            if source[el.open_end : from_at].strip() or source[to_at : el.close_start].strip():
+                break
+            from_at, to_at = el.open_start, el.close_end
+        write(path, source[:from_at] + source[to_at:])
+        return {"file": rel_path, "reload": True}
+
+    block = parents[index]
+    if block.name == "summary" and index + 1 < len(parents) and parents[index + 1].name == "details":
+        # 질문을 지우면 답변만 남지 않게 질문 상자를 통째로 지운다
+        index += 1
+        block = parents[index]
+    from_at, to_at = block.open_start, block.close_end
+    if block.name == "dt":
+        pair = FOLLOWING_DD.match(source, to_at)
+        if pair:
+            to_at = pair.end()
+    elif block.name == "dd":
+        parent_start = parents[index + 1].open_end
+        pair = PRECEDING_DT.search(source[parent_start:from_at])
+        if pair:
+            from_at = parent_start + pair.start()
+
+    # 지우고 나서 비는 목록이나 상자도 함께 지운다
+    for el in parents[index + 1 :]:
+        inner = source[el.open_end : from_at] + source[to_at : el.close_start]
+        if el.name not in CONTAINERS or PROTECTED.search(open_tag(source, el)) or inner.strip():
+            break
+        from_at, to_at = el.open_start, el.close_end
+
+    from_at, to_at = line_extent(source, from_at, to_at)
+    write(path, source[:from_at] + source[to_at:])
+    return {"file": rel_path, "reload": True}
+
+
+def add_below_marked(rel_path, start, end, old, text):
+    path, source = load_marked(rel_path, start, end, old)
+    parents, index = locate_block(source, start)
+    block = parents[index]
+    lines = [html.escape(line.strip(), quote=False) for line in text.splitlines() if line.strip()]
+    if not lines:
+        raise EditError(400, "추가할 글자를 입력해 주세요.")
+
+    anchor = block
+    insert_at = block.close_end
+    if block.name in ("td", "th"):
+        raise EditError(400, "표 칸 아래에는 추가할 수 없습니다.")
+    if block.name == "summary" and index + 1 < len(parents) and parents[index + 1].name == "details":
+        # 질문 아래에 추가하면 답변 칸이 있는 새 질문이 된다
+        anchor = parents[index + 1]
+        insert_at = anchor.close_end
+        make = lambda t: '%s<summary>%s</summary><div class="answer">%s</div></details>' % (
+            open_tag(source, anchor), t, EMPTY_ANSWER)
+    elif block.name in HEADINGS or block.name == "pre":
+        make = lambda t: "<p>%s</p>" % t
+    elif block.name == "dt":
+        pair = FOLLOWING_DD.match(source, insert_at)
+        if pair:
+            insert_at = pair.end()
+        make = lambda t: "<dd>%s</dd>" % t
+    else:
+        make = lambda t: "%s%s</%s>" % (open_tag(source, block), t, block.name)
+
+    line_start = source.rfind("\n", 0, anchor.open_start) + 1
+    before = source[line_start : anchor.open_start]
+    indent = before if not before.strip() else ""
+    newline = "\r\n" if "\r\n" in source else "\n"
+    addition = "".join(newline + indent + make(line) for line in lines)
+    write(path, source[:insert_at] + addition + source[insert_at:])
+    return {"file": rel_path, "reload": True}
 
 
 def data_matches(old, new):
@@ -231,15 +395,26 @@ class Handler(SimpleHTTPRequestHandler):
             if length > MAX_BODY:
                 raise EditError(413, "글이 너무 깁니다.")
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
-            old, new = payload.get("old"), payload.get("new")
-            if not isinstance(old, str) or not isinstance(new, str) or not new.strip():
+            action = payload.get("action", "edit")
+            old, new = payload.get("old"), payload.get("new", "")
+            marked = (payload.get("file"), payload.get("start"), payload.get("end"), old)
+            if not isinstance(old, str) or not isinstance(new, str):
+                raise EditError(400, "요청을 읽지 못했습니다.")
+            if action in ("delete", "add") and payload.get("start") is None:
+                raise EditError(400, "자동으로 그려지는 글자는 삭제하거나 아래에 추가할 수 없습니다.")
+            if action in ("edit", "add") and not new.strip():
                 raise EditError(400, "빈 글자로는 저장할 수 없습니다.")
-            new = new.strip()
             with WRITE_LOCK:
-                if payload.get("start") is not None:
-                    result = save_marked(payload.get("file"), payload.get("start"), payload.get("end"), old, new)
+                if action == "delete":
+                    result = delete_marked(*marked, payload.get("scope"))
+                elif action == "add":
+                    result = add_below_marked(*marked, new)
+                elif action != "edit":
+                    raise EditError(400, "없는 동작입니다.")
+                elif payload.get("start") is not None:
+                    result = save_marked(*marked, new.strip())
                 else:
-                    result = save_generated(old, new)
+                    result = save_generated(old, new.strip())
             self.send_json(200, result)
         except EditError as error:
             self.send_json(error.status, {"error": error.message})

@@ -17,8 +17,9 @@
     .edit-box { position: fixed; z-index: 2147483001; display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid #c8cfda; border-radius: 4px; background: #fff; box-shadow: 0 4px 16px rgba(44, 51, 63, .2); }
     .edit-box textarea { width: 100%; min-height: 72px; padding: 8px; box-sizing: border-box; border: 1px solid #c8cfda; border-radius: 4px; font: inherit; resize: vertical; }
     .edit-box textarea:focus { outline: 2px solid #c0e0fa; border-color: #2560ff; }
-    .edit-box .row { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+    .edit-box .row { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; }
     .edit-box .hint { margin-right: auto; color: #566581; font-size: 12px; }
+    .edit-box button { white-space: nowrap; }
     body.edit-on, body.edit-on * { cursor: text !important; }
     body.edit-on .edit-ui, body.edit-on .edit-ui button { cursor: pointer !important; }
     body.edit-on .edit-box textarea { cursor: text !important; }
@@ -139,16 +140,20 @@
 
     box = document.createElement("div");
     box.className = "edit-ui edit-box";
+    const canChange = markOf(node) && !node.parentElement.closest(".lab, nav");
     box.innerHTML = `
       <textarea aria-label="글자 고치기"></textarea>
       <div class="row">
         <span class="hint">Enter 저장 · Esc 취소</span>
+        ${canChange ? `<button type="button" class="delete">삭제</button><button type="button" class="add">아래에 추가</button>` : ""}
         <button type="button" class="cancel">취소</button>
         <button type="button" class="save">저장</button>
-      </div>`;
+      </div>
+      ${canChange ? "" : `<span class="hint">자동으로 그려지거나 코드와 연결된 글자라 수정만 할 수 있습니다.</span>`}`;
     const input = box.querySelector("textarea");
+    const row = box.querySelector(".row");
     input.value = shown;
-    const width = Math.min(Math.max(rect.width + 24, 360), innerWidth - 32);
+    const width = Math.min(Math.max(rect.width + 24, 520), innerWidth - 32);
     box.style.width = width + "px";
     box.style.left = Math.max(16, Math.min(rect.left - 12, innerWidth - width - 16)) + "px";
     document.body.appendChild(box);
@@ -158,9 +163,25 @@
     input.focus();
     input.select();
 
-    const submit = () => save(node, old, shown, input.value);
-    box.querySelector(".save").addEventListener("click", submit);
-    box.querySelector(".cancel").addEventListener("click", closeBox);
+    let submit = () => save(node, old, shown, input.value);
+    row.querySelector(".save").addEventListener("click", () => submit());
+    row.querySelector(".cancel").addEventListener("click", closeBox);
+
+    if (canChange) {
+      row.querySelector(".add").addEventListener("click", () => {
+        input.value = "";
+        input.setAttribute("aria-label", "아래에 추가할 글자");
+        input.placeholder = "아래에 추가할 글자. 줄마다 하나씩 추가됩니다.";
+        row.querySelector(".hint").textContent = "Enter 추가 · Shift+Enter 줄바꿈";
+        row.querySelector(".save").textContent = "추가";
+        row.querySelector(".delete").remove();
+        row.querySelector(".add").remove();
+        submit = () => change(node, old, { action: "add", new: input.value });
+        input.focus();
+      });
+      row.querySelector(".delete").addEventListener("click", () => showDelete(node, old, row));
+    }
+
     input.addEventListener("keydown", e => {
       e.stopPropagation(); // 사이트의 Esc 뒤로 가기가 함께 동작하지 않게
       if (e.isComposing) return; // 한글 조합 중 Enter는 저장이 아니다
@@ -169,34 +190,67 @@
     });
   }
 
-  async function save(node, old, shown, value) {
-    const next = value.trim();
-    if (next === shown) { closeBox(); return; }
-    if (!next) { say("빈 글자로는 저장할 수 없습니다.", true); return; }
-    const mark = markOf(node);
-    const body = { old, new: next };
-    if (mark) Object.assign(body, { file: FILE, start: mark.start, end: mark.end });
-    let res, data;
+  // 삭제는 되돌리기 어려우니 무엇이 지워지는지 보여 주고 한 번 더 누르게 한다
+  function showDelete(node, old, row) {
+    const parent = node.parentElement;
+    const block = parent.closest("p, li, h1, h2, h3, h4, h5, h6, div, dt, dd, summary, td, th, pre, blockquote, figcaption");
+    const flat = s => s.replace(/\s+/g, " ").trim();
+    const mixed = block && flat(block.textContent) !== flat(old);
+    const whole = parent.closest("summary") ? "질문과 답변을 모두 삭제"
+      : parent.closest("dt, dd") ? "항목과 내용을 모두 삭제"
+      : mixed ? "문단 전체 삭제" : "정말 삭제";
+    row.innerHTML = `
+      <span class="hint">삭제할까요?</span>
+      <button type="button" class="cancel">취소</button>
+      ${mixed ? `<button type="button" class="piece">이 글자만 삭제</button>` : ""}
+      <button type="button" class="save whole">${whole}</button>`;
+    row.querySelector(".cancel").addEventListener("click", closeBox);
+    row.querySelector(".whole").addEventListener("click", () => change(node, old, { action: "delete", scope: "block" }));
+    if (mixed) row.querySelector(".piece").addEventListener("click", () => change(node, old, { action: "delete", scope: "piece" }));
+    row.querySelector(".whole").focus();
+  }
+
+  async function post(body) {
     try {
-      res = await fetch("/__edit__/save", {
+      const res = await fetch("/__edit__/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      data = await res.json();
+      const data = await res.json();
+      if (res.ok) return data;
+      say(data.error || "저장하지 못했습니다.", true);
     } catch {
       say("저장하지 못했습니다. 편집 서버가 켜져 있는지 확인해 주세요.", true);
-      return;
     }
-    if (!res.ok) { say(data.error || "저장하지 못했습니다.", true); return; }
+    return null;
+  }
 
+  function reloadAfter(data) {
     closeBox();
-    if (data.reload) {
-      // JS가 그린 글자는 원본을 고쳤으니 다시 그린다
-      remember({ on: true, y: scrollY, saved: data.file });
-      location.reload();
-      return;
-    }
+    remember({ on: true, y: scrollY, saved: data.file });
+    location.reload();
+  }
+
+  async function change(node, old, extra) {
+    const mark = markOf(node);
+    if (!mark) { say("이 글자는 삭제하거나 아래에 추가할 수 없습니다.", true); return; }
+    const data = await post({ old, file: FILE, start: mark.start, end: mark.end, ...extra });
+    if (data) reloadAfter(data);
+  }
+
+  async function save(node, old, shown, value) {
+    const next = value.trim();
+    if (next === shown) { closeBox(); return; }
+    if (!next) { say("빈 글자로는 저장할 수 없습니다. 지우려면 삭제 버튼을 쓰세요.", true); return; }
+    const mark = markOf(node);
+    const body = { old, new: next };
+    if (mark) Object.assign(body, { file: FILE, start: mark.start, end: mark.end });
+    const data = await post(body);
+    if (!data) return;
+    // JS가 그린 글자는 원본을 고쳤으니 다시 그린다
+    if (data.reload) { reloadAfter(data); return; }
+    closeBox();
     node.data = next;
     shiftMarks(mark.end, data.delta);
     say(`${data.file}에 저장했습니다.`);
