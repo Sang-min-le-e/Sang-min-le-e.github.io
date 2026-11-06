@@ -153,7 +153,7 @@ a.op-badge:hover { color: var(--text); transform: translateY(-4px) rotate(-.6deg
 .op-school { font-size: 15px; color: var(--text-2); }
 .op-school strong { color: var(--primary-dark); font-weight: 700; }
 .op-en { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
-.op-foot { display: flex; justify-content: space-between; gap: 12px; padding: 10px 20px; border-top: 1px dashed var(--border); font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+.op-foot { display: flex; justify-content: flex-end; gap: 12px; padding: 10px 20px; border-top: 1px dashed var(--border); font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
 .op-foot span:last-child { color: var(--link); }
 .op-badge.big { max-width: 520px; margin: 12px 0 8px; }
 .op-badge.big .op-avatar { width: 88px; height: 88px; }
@@ -177,7 +177,7 @@ a.op-badge:hover { color: var(--text); transform: translateY(-4px) rotate(-.6deg
 .contact-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
 .contact-list li { display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin: 0; }
 .contact-list span { font-size: 13px; font-weight: 600; color: var(--text-3); }
-.contact-list a { font-family: var(--font-mono); font-size: 14px; overflow-wrap: anywhere; }
+.contact-list a { color: var(--text); font-family: var(--font-mono); font-size: 14px; overflow-wrap: anywhere; }
 .hero p { font-size: 18px; color: var(--text-2); margin: 0; max-width: 560px; }
 .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 /* ---------- 화면 전환 ---------- */
@@ -432,6 +432,7 @@ a.op-badge:hover { color: var(--text); transform: translateY(-4px) rotate(-.6deg
 .project-meta dt { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
 .project-meta dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; }
 .stack-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.stack-chips img { display: block; border-radius: 10px; }
 .stack-chips span { font-family: var(--font-mono); font-size: 13px; background: var(--focus-tint); color: var(--primary-dark); border-radius: var(--radius-sm); padding: 4px 10px; }
 .arch-flow { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 30px; }
 .arch-flow li { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 14px; font-size: 14px; font-weight: 600; }

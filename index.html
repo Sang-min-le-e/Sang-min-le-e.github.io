@@ -178,12 +178,15 @@
     avatar: "https://github.com/Sang-min-le-e.png",
     github: "https://github.com/Sang-min-le-e",
     experience: [
+      { title: "NAVER Cloud Platform Certified Associate (NCA)", org: "NAVER Cloud", period: "2026.11.06", kind: "자격증" },
       { title: "LG Aimers 9기 수료", org: "LG AI Research", period: "2026.06.22 – 2026.09.02", kind: "교육 · 수료" },
       { title: "고등·중등 과학 강사", org: "차오름 수학과학학원", period: "2023.01 – 2024.05, 2026.01 – 현재", kind: "강의" },
     ],
     stack: [
-      { group: "Languages & Frameworks", items: ["C++", "Python", "Dart", "Flutter"] },
-      { group: "Infrastructure & Cloud", items: ["Linux", "Docker"] },
+      { group: "Languages & Frameworks", items: [
+        { name: "C++", icon: "cpp" }, { name: "Python", icon: "py" }, { name: "Dart", icon: "dart" }, { name: "Flutter", icon: "flutter" }] },
+      { group: "Infrastructure & Cloud", items: [
+        { name: "Linux", icon: "linux" }, { name: "Docker", icon: "docker" }] },
     ],
     contact: [
       { label: "네이버 메일", value: "sangmin351212@naver.com", href: "mailto:sangmin351212@naver.com" },
@@ -207,7 +210,7 @@
             <div class="op-en">${PROFILE.schoolEn}</div>
           </div>
         </div>
-        <div class="op-foot"><span>Clearance · All Racks</span>${big ? "" : "<span>Profile →</span>"}</div>
+        ${big ? "" : '<div class="op-foot"><span>Profile →</span></div>'}
       </${tag}>`;
   }
 
@@ -246,7 +249,7 @@
         <h2><span class="step">03</span>Tech Stack</h2>
         ${PROFILE.stack.map(g => `
           <h3>${g.group}</h3>
-          <div class="stack-chips">${g.items.map(s => `<span>${s}</span>`).join("")}</div>`).join("")}
+          <div class="stack-chips">${g.items.map(s => `<img src="https://skillicons.dev/icons?i=${s.icon}" alt="${s.name}" title="${s.name}" width="48" height="48" loading="lazy">`).join("")}</div>`).join("")}
 
         <h2><span class="step">04</span>Contact</h2>
         <ul class="contact-list">
