@@ -103,6 +103,38 @@
     return null;
   }
 
+  // 글자 밖(상자 여백 등)을 눌렀을 때 그 자리를 감싼 블록을 찾는다
+  const BLOCK_SEL = "p, li, h1, h2, h3, h4, h5, h6, dt, dd, summary, td, th, pre, blockquote, figcaption, .note, .answer, .lead";
+  const STOP_SEL = "body, main, article, section, nav, header, footer, .wrap";
+  function blockAt(target) {
+    let el = target && target.nodeType === Node.ELEMENT_NODE ? target : target && target.parentElement;
+    for (; el && !el.matches(STOP_SEL); el = el.parentElement) {
+      if (blocked(el)) return null;
+      if (el.matches(BLOCK_SEL) || (el.tagName === "DIV" && directText(el))) return el;
+    }
+    return null;
+  }
+
+  // 블록 안의 글자 중 누른 자리에서 가장 가까운 것
+  function nearestText(block, x, y) {
+    if (!block) return null;
+    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, {
+      acceptNode: n => n.data.trim() && !blocked(n.parentElement) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
+    });
+    let best = null, bestDist = Infinity;
+    while (walker.nextNode()) {
+      const range = document.createRange();
+      range.selectNodeContents(walker.currentNode);
+      for (const r of range.getClientRects()) {
+        const dx = Math.max(r.left - x, 0, x - r.right);
+        const dy = Math.max(r.top - y, 0, y - r.bottom);
+        const d = dy * 100000 + dx; // 같은 줄(세로 거리)을 먼저, 그다음 가로 거리로 고른다
+        if (d < bestDist) { bestDist = d; best = walker.currentNode; }
+      }
+    }
+    return best;
+  }
+
   function markOf(node) {
     const prev = node.previousSibling;
     if (!prev || prev.nodeType !== Node.COMMENT_NODE) return null;
@@ -268,14 +300,15 @@
     if (!on || isUi(e.target)) return;
     e.preventDefault();
     e.stopPropagation();
-    const node = textAt(e.clientX, e.clientY, e.target);
+    const node = textAt(e.clientX, e.clientY, e.target) || nearestText(blockAt(e.target), e.clientX, e.clientY);
     if (node) openBox(node);
     else closeBox();
   }, true);
   document.addEventListener("mouseover", e => {
     if (!on || isUi(e.target)) { setHover(null); return; }
     const el = e.target;
-    setHover(el.nodeType === Node.ELEMENT_NODE && !blocked(el) && directText(el) ? el : null);
+    const own = el.nodeType === Node.ELEMENT_NODE && !blocked(el) && directText(el) ? el : null;
+    setHover(blockAt(el) || own);
   }, true);
 
   const saved = recall();
