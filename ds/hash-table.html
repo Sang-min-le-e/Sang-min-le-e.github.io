@@ -44,16 +44,17 @@
   <h1>해시 테이블</h1>
   <p class="lead">이름표만 보면 몇 번 사물함인지 바로 계산되는 사물함. 그래서 찾는 데 거의 시간이 안 든다.</p>
 
-  <div class="note"><strong>샘플 페이지.</strong> 01, 02의 설명은 짧은 초안이니 내 말로 다시 쓰고, 04의 답변은 직접 채우세요.</div>
+  <div class="note"><strong>샘플 페이지.</strong> 01 개념의 설명은 짧은 초안이니 내 말로 다시 쓰고, 03의 답변은 직접 채우세요.</div>
 
-  <h2><span class="step">01</span>한 줄 정의</h2>
+  <h2><span class="step">01</span>개념</h2>
+  <h3>정의</h3>
   <p>키를 <b>해시 함수</b>에 넣어 나온 숫자를 배열의 칸 번호로 쓰는 자료구조. 칸 번호를 바로 계산하니 평균적으로 <code>O(1)</code>에 넣고, 찾고, 지운다.</p>
 
-  <h2><span class="step">02</span>왜 필요한가</h2>
+  <h3>왜 필요한가</h3>
   <p>배열에서 값을 찾으려면 처음부터 하나씩 봐야 한다(<code>O(n)</code>). 정렬해 두면 이진 탐색으로 <code>O(log n)</code>까지 줄지만, 넣을 때마다 정렬을 유지해야 한다. 해시 테이블은 "어디에 있는지"를 계산으로 알아내서 이 비용을 없앤다.</p>
   <p>대신 서로 다른 키가 같은 칸에 떨어지는 <b>충돌</b>이 생긴다. 아래 실험에서 직접 일으켜 보자.</p>
 
-  <h2><span class="step">03</span>만져 보기</h2>
+  <h2><span class="step">02</span>직접 해보기</h2>
   <div class="lab">
     <div class="lab-head">
       <span class="eyebrow">Lab · 체이닝 방식 해시 테이블</span>
@@ -85,7 +86,8 @@
     <li>키를 계속 넣어 <b>적재율</b>이 0.75를 넘으면 <b>두 배로 늘리기</b>를 눌러 키들이 다시 흩어지는 것 보기.</li>
   </ul>
 
-  <h2><span class="step">04</span>AI로 생성한 면접 질문과 내 대답</h2>
+  <h2><span class="step">03</span>질문으로 공부하기</h2>
+  <h3>AI로 생성한 면접 질문과 내 대답</h3>
   <details class="qa">
     <summary>해시 테이블의 탐색이 O(1)인 이유와, 최악의 경우는?</summary>
     <div class="answer">내 답변을 먼저 말해 보고 여기에 적기.</div>
@@ -99,7 +101,7 @@
     <div class="answer">힌트: 적재율 0.75, 꽉 차면 두 배로 늘려 재배치, 한 칸에 8개 넘게 몰리면 트리로 바꿈. 이걸 내 말로 정리하기.</div>
   </details>
 
-  <h2><span class="step">05</span>헷갈렸던 것</h2>
+  <h3>헷갈렸던 것</h3>
   <div class="note">공부하다 틀리게 이해했던 것과 왜 틀렸는지 적기.</div>
 
   <nav class="pager" data-pager></nav>
