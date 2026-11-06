@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리눅스 구조: 커널과 셸 · My Compiled Datacenter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .layers { display: grid; gap: 8px; }
+    .layer {
+      display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+      min-height: 48px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-md);
+      background: var(--surface); transition: background-color .2s ease, border-color .2s ease, opacity .2s ease;
+    }
+    .layer .name { font-weight: 600; }
+    .layer .desc { font-size: 13px; color: var(--text-3); }
+    .layer .tag { font-family: var(--font-mono); font-size: 12px; color: var(--text-3); white-space: nowrap; }
+    .layer.active { border-color: var(--primary); background: var(--focus-tint); box-shadow: var(--shadow-ring); }
+    .layer.stop { border-color: var(--primary-dark); background: var(--code-bg); }
+    .layer.dim { opacity: .35; }
+    .layer.range { border-color: var(--primary-dark); }
+    .layer.range .tag { color: var(--primary-dark); font-weight: 600; }
+    .arrowline { text-align: center; font-family: var(--font-mono); font-size: 13px; color: var(--text-3); min-height: 20px; }
+    .stats { display: flex; gap: 8px; flex-wrap: wrap; }
+    .stats span { font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: var(--radius-sm); background: var(--code-bg); color: var(--text); }
+    .guide { border: 1px dashed var(--border-strong); border-radius: var(--radius-md); padding: 12px 16px; margin: 12px 0 24px; font-size: 14px; color: var(--text-2); background: var(--surface); }
+    .guide b { color: var(--text); }
+    .guide ul { margin: 6px 0 0; padding-left: 20px; }
+    @media (max-width: 560px) {
+      .layer { grid-template-columns: 1fr; gap: 2px; }
+      .layer .tag { white-space: normal; }
+    }
+  </style>
+</head>
+<body data-root="../" data-topic="linux/linux-basics">
+
+<main class="wrap article">
+  <div class="crumb" data-crumb></div>
+  <h1>리눅스 구조: 커널과 셸</h1>
+  <p class="lead">이 개념을 한 문장으로. 비유가 있으면 더 좋다.</p>
+  <div class="guide"><b>작성 가이드 (다 쓰면 이 상자들은 지우기).</b> 강의 1–2강 범위. 비유 후보: 셸 = 커널을 감싼 '껍데기'(2강).</div>
+
+  <h2><span class="step">01</span>개념</h2>
+  <h3>무엇인가</h3>
+  <div class="guide"><b>무엇을 정의할지.</b> 아래 셋을 각각 한두 문장으로.
+    <ul>
+      <li>운영체제와 커널, 그리고 둘의 포함 관계</li>
+      <li>셸: 사용자와 커널 사이에서 하는 일</li>
+      <li>그래서 "리눅스"는 정확히 무엇을 가리키는지, GNU/Linux라는 이름</li>
+    </ul>
+  </div>
+
+  <h3>왜 필요한가</h3>
+  <p>이게 없으면 어떤 문제가 생기는지부터.</p>
+  <div class="guide"><b>무엇을 쓸지.</b> "만약 ~이 없다면"으로 시작해 보기.
+    <ul>
+      <li>커널이 없다면: 프로그램마다 키보드, 디스크 같은 하드웨어를 직접 다뤄야 한다면? (2강 1번: 장치 드라이버, 프로세스·파일·보안 관리)</li>
+      <li>셸이 없다면: 사용자가 커널에 직접 명령해야 한다면? (2강 2번: 명령어 해석기)</li>
+      <li>셸이 여러 종류인 이유: sh → csh, ksh → bash로 기능이 보완된 흐름 (2강 3, 4번)</li>
+    </ul>
+  </div>
+
+  <h2><span class="step">02</span>직접 해보기</h2>
+  <div class="lab">
+    <div class="lab-head">
+      <span class="eyebrow">Lab · 명령어 한 줄이 하드웨어까지 가는 길</span>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="lab-controls">
+      <input type="text" id="cmd" value="ls" placeholder="명령어 (예: ls)" maxlength="16" autocomplete="off" spellcheck="false" aria-label="실행할 명령어">
+      <button class="btn small primary" id="run">실행</button>
+      <button class="btn small" id="typo">오타 내기</button>
+    </div>
+    <div class="lab-controls">
+      <button class="btn small" id="osRange">운영체제 범위 보기</button>
+      <button class="btn small" id="kernelRange">"리눅스" 범위 보기</button>
+      <button class="btn small" id="reset">처음으로</button>
+    </div>
+    <div class="layers" id="layers"></div>
+    <div class="lab-log" id="log">명령어를 입력하고 실행을 누르면, 명령이 어느 층을 지나가는지 한 단계씩 보여 줍니다.</div>
+  </div>
+  <p class="lab-caption">위가 사용자, 아래가 하드웨어. 파랗게 켜진 층이 지금 일하는 곳.</p>
+
+  <h3>실험해 볼 것</h3>
+  <ul>
+    <li><b>실행</b>을 눌러 명령이 셸 → 커널 → 하드웨어로 내려갔다가, 결과가 다시 위로 올라오는 순서 보기.</li>
+    <li><b>오타 내기</b>를 눌러 명령이 어느 층에서 멈추는지, 커널까지 가는지 보기.</li>
+    <li><b>운영체제 범위</b>와 <b>"리눅스" 범위</b>를 번갈아 눌러, 흔한 오해(리눅스 = 운영체제)가 어디서 생기는지 보기.</li>
+  </ul>
+
+  <h3>내 터미널에서 해 보기</h3>
+  <p>강의 2강에서 직접 보여 준 실습이다.</p>
+  <ol>
+    <li><code>cat /etc/shells</code>로 지금 시스템에 설치된 셸 목록을 본다.</li>
+    <li>bash에서 <code>ls</code>를 치면 디렉토리와 파일이 <b>색상으로 구분</b>된다. 이름 일부만 치고 <code>Tab</code>을 누르면 자동 완성된다.</li>
+    <li><code>sh</code>를 입력해 본 셸로 바꾼 뒤 같은 <code>ls</code>를 치면 <b>색상 구분이 없고</b>, <code>Tab</code>을 누르면 공백만 찍힌다. <code>exit</code>로 bash에 돌아온다.</li>
+  </ol>
+
+  <h2><span class="step">03</span>질문으로 공부하기</h2>
+  <h3>AI로 생성한 면접 질문과 내 대답</h3>
+  <details class="qa">
+    <summary>리눅스는 운영체제인가요, 커널인가요?</summary>
+    <div class="answer">노트를 덮고 먼저 말해 본 뒤, 내 답변을 적기.</div>
+  </details>
+  <details class="qa">
+    <summary>셸은 무슨 역할을 하나요? 왜 '셸(껍데기)'이라고 부르나요?</summary>
+    <div class="answer">노트를 덮고 먼저 말해 본 뒤, 내 답변을 적기.</div>
+  </details>
+  <details class="qa">
+    <summary>터미널에 명령어를 입력하면 하드웨어까지 어떤 과정을 거치나요?</summary>
+    <div class="answer">노트를 덮고 먼저 말해 본 뒤, 내 답변을 적기. 위 실험의 순서를 말로 설명하면 된다.</div>
+  </details>
+
+  <h3>헷갈렸던 것</h3>
+  <div class="note">공부하다 틀리게 이해했던 것과 왜 틀렸는지 적기.</div>
+
+  <nav class="pager" data-pager></nav>
+</main>
+
+<script src="../assets/topics.js"></script>
+<script src="../assets/layout.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  // 강의 2강의 구성 그림: 위에서 아래로 사용자 → 응용 프로그램 → 셸 → 커널 → 하드웨어
+  const LAYERS = [
+    { id: "user", name: "사용자", desc: "명령어를 입력하고 결과를 본다" },
+    { id: "app", name: "응용 프로그램", desc: "문서 작성, 웹 서핑 등 특정 작업" },
+    { id: "shell", name: "셸", desc: "명령어 해석기. 사용자와 커널 사이" },
+    { id: "kernel", name: "커널", desc: "프로세스, 파일, 네트워크, 보안 관리 + 장치 드라이버" },
+    { id: "hw", name: "하드웨어", desc: "CPU, 메모리, 키보드, 하드디스크" },
+  ];
+  // 이 실험이 아는 명령어 (그 밖의 이름은 셸이 찾지 못하는 오타로 처리)
+  const KNOWN = ["ls", "pwd", "cd", "mkdir", "touch", "rm", "cp", "mv", "cat", "echo", "clear", "date", "sh", "bash"];
+  const DISK = ["ls", "cd", "mkdir", "touch", "rm", "cp", "mv", "cat"];
+
+  let busy = false, steps = 0, passed = new Set();
+
+  function render(state = {}) {
+    $("layers").innerHTML = LAYERS.map(l => {
+      const cls = ["layer"];
+      if (state.active === l.id) cls.push("active");
+      if (state.stop === l.id) cls.push("stop");
+      if (state.range) cls.push(state.range.includes(l.id) ? "range" : "dim");
+      const tag = state.range && state.range.includes(l.id) ? state.rangeName : (state.tags && state.tags[l.id]) || "";
+      return `<div class="${cls.join(" ")}"><div class="name">${l.name}</div><div class="desc">${l.desc}</div><div class="tag">${tag}</div></div>`;
+    }).join("");
+    $("stats").innerHTML = `<span>단계 ${steps}</span><span>지나간 층 ${passed.size}개</span>`;
+  }
+
+  const log = msg => { $("log").textContent = msg; };
+  const addLog = msg => { $("log").textContent += "\n" + msg; };
+
+  async function step(active, msg, tags) {
+    steps++; passed.add(active);
+    render({ active, tags });
+    addLog(`${steps}. ${msg}`);
+    await sleep(650);
+  }
+
+  async function run(cmdText) {
+    if (busy) return;
+    busy = true; steps = 0; passed = new Set();
+    const name = cmdText.trim().split(/\s+/)[0] || "";
+    try {
+      if (!name) { log("명령어를 먼저 입력하세요."); render(); return; }
+      log(`$ ${cmdText.trim()}`);
+      await step("user", `사용자가 "${cmdText.trim()}"를 입력했다.`, { user: "입력" });
+      await step("shell", `셸(bash)이 명령어를 해석하고, 실행할 명령 "${name}"을(를) 찾는다.`, { shell: "해석 중" });
+      if (!KNOWN.includes(name)) {
+        render({ stop: "shell", tags: { shell: "여기서 멈춤" } });
+        addLog(`${name}: command not found`);
+        addLog(`→ 셸이 명령을 찾지 못해 커널에 전달하지 않았다. ${steps}단계, 층 ${passed.size}개만 지나고 끝.`);
+        return;
+      }
+      const dev = DISK.includes(name) ? "하드디스크" : "하드웨어";
+      await step("kernel", "셸이 해석한 요청을 커널에 전달한다.", { kernel: "요청 받음" });
+      await step("hw", `커널이 장치 드라이버로 ${dev}를 제어한다.`, { hw: dev });
+      await step("kernel", "하드웨어의 처리 결과가 커널로 돌아온다.", { kernel: "결과 받음" });
+      await step("shell", "커널의 결과가 셸로 전달된다.", { shell: "결과 전달" });
+      await step("user", "셸이 결과를 사용자 화면에 보여 준다.", { user: "결과 확인" });
+      render();
+      addLog(`→ 끝. ${steps}단계, 층 ${passed.size}개를 지났다. 내려갈 때와 올라올 때 같은 층을 거꾸로 지난다.`);
+    } finally { busy = false; }
+  }
+
+  $("run").onclick = () => run($("cmd").value);
+  $("cmd").addEventListener("keydown", e => { if (e.key === "Enter") run($("cmd").value); });
+  $("typo").onclick = () => { $("cmd").value = "lss"; run("lss"); };
+
+  // 강의 1강: 커널 ⊂ 운영체제. 2강 그림의 '리눅스 운영체제' 상자에는 응용 프로그램, 셸, 커널이 들어 있다
+  $("osRange").onclick = () => {
+    if (busy) return;
+    steps = 0; passed = new Set();
+    render({ range: ["app", "shell", "kernel"], rangeName: "운영체제" });
+    log('운영체제는 하드웨어 자원을 관리하고 프로그램 실행을 돕는 "전체" 소프트웨어다. 응용 프로그램, 셸, 커널이 모두 들어간다. (3개 층)');
+  };
+  $("kernelRange").onclick = () => {
+    if (busy) return;
+    steps = 0; passed = new Set();
+    render({ range: ["kernel"], rangeName: "리눅스" });
+    log('엄밀히 "리눅스"는 커널 하나다. 커널에 GNU 프로그램과 셸 등을 묶은 전체가 GNU/Linux, 흔히 말하는 리눅스 운영체제다. (1개 층)');
+  };
+  $("reset").onclick = () => {
+    if (busy) return;
+    steps = 0; passed = new Set(); $("cmd").value = "ls";
+    render();
+    log("명령어를 입력하고 실행을 누르면, 명령이 어느 층을 지나가는지 한 단계씩 보여 줍니다.");
+  };
+
+  render();
+</script>
+</body>
+</html>

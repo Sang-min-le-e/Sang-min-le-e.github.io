@@ -84,8 +84,16 @@ window.RACKS = [
       {
         dir: "linux", title: "Linux", desc: "화면 없는 서버와 대화하는 법",
         topics: [
-          { slug: "linux-basics", name: "리눅스 기본", hook: "서버에는 화면이 없다", status: "todo" },
+          { slug: "linux-basics", name: "리눅스 구조: 커널과 셸", hook: "서버에는 화면이 없다", status: "draft" },
+          { slug: "filesystem-path", name: "파일 시스템과 경로", hook: "모든 것은 / 에서 시작한다", status: "todo" },
+          { slug: "permission", name: "권한과 소유권", hook: "Permission denied의 정체", status: "todo" },
+          { slug: "redirection-pipe", name: "표준 입출력과 파이프", hook: "출력을 파일로, 다음 명령으로", status: "todo" },
+          { slug: "shell-env", name: "셸 스크립트와 환경 변수", hook: "명령어를 모아 자동으로", status: "todo" },
+          { slug: "package", name: "패키지와 의존성", hook: "설치 한 줄 뒤에 따라오는 것들", status: "todo" },
+          { slug: "disk-mount", name: "디스크와 마운트", hook: "새 디스크는 폴더에 붙인다", status: "todo" },
+          { slug: "firewall", name: "방화벽", hook: "들어오는 건 막고, 필요한 것만 연다", status: "todo" },
           { slug: "process-port", name: "프로세스와 포트", hook: "누가 8080을 쓰고 있지?", status: "todo" },
+          { slug: "linux-tools", name: "주요 도구와 명령어", hook: "자주 쓰는 명령어 한눈에", status: "todo" },
         ],
       },
       {
